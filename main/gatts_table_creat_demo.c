@@ -63,7 +63,9 @@ static uint8_t s_led_state = 0;
 
 
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 static void configure_led(void)
 {
     gpio_reset_pin(LED_GPIO);
@@ -71,13 +73,19 @@ static void configure_led(void)
     gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
 }
 
+
+//==========================================================================================================
+//
+//==========================================================================================================
 static void blink_led(void)
 {
     /* Set the GPIO level according to the state (LOW or HIGH)*/
     gpio_set_level(LED_GPIO, s_led_state);
 }
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 static void led_blink_task(void *arg)
 {
 
@@ -97,7 +105,9 @@ static const int GSM_RX_BUF_SIZE = 1024;
 QueueHandle_t GSM_RX_queuehandle;
 QueueHandle_t interputQueue;
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 static void IRAM_ATTR gpio_interrupt_handler(void *args)
 {
     int pinNumber = (int)args;
@@ -105,7 +115,9 @@ static void IRAM_ATTR gpio_interrupt_handler(void *args)
 }
 
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 static void GSM_INT_Task(void *arg)
 {
     static const char *INT_TASK_TAG = "INT_TASK";
@@ -121,6 +133,9 @@ static void GSM_INT_Task(void *arg)
 }
 
 
+//==========================================================================================================
+//
+//==========================================================================================================
 static void GSM_PINInit(void)
 {
 	// RI pin Ring interrupt enable
@@ -134,7 +149,9 @@ static void GSM_PINInit(void)
 
 }
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 static void GSM_PowerInit(void)
 {
     gpio_reset_pin(MODEM_PWRKEY);
@@ -160,7 +177,9 @@ static void GSM_PowerInit(void)
 }
 
 
-
+//==========================================================================================================
+//
+//==========================================================================================================
 void GSM_UART_Init(void) {
     const uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -176,6 +195,9 @@ void GSM_UART_Init(void) {
     uart_set_pin(UART_NUM_1, MODEM_TX, MODEM_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
+//==========================================================================================================
+//
+//==========================================================================================================
 int GSM_SendData(const char* logName, const char* data)
 {
     const int len = strlen(data);
@@ -184,6 +206,9 @@ int GSM_SendData(const char* logName, const char* data)
     return txBytes;
 }
 
+//==========================================================================================================
+//
+//==========================================================================================================
 static void GSM_TX_Task(void *arg)
 {
     static const char *TX_TASK_TAG = "TX_TASK";
@@ -194,6 +219,10 @@ static void GSM_TX_Task(void *arg)
     }
 }
 
+
+//==========================================================================================================
+//
+//==========================================================================================================
 static void GSM_RX_Task(void *arg)
 {
     static const char *RX_TASK_TAG = "RX_TASK";
@@ -330,6 +359,8 @@ struct gatts_profile_inst {
     esp_bt_uuid_t descr_uuid;
 };
 
+
+
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 					esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
@@ -357,6 +388,9 @@ static const uint8_t heart_measurement_ccc[2]      = {0x00, 0x00};
 static const uint8_t char_value[4]                 = {0x11, 0x22, 0x33, 0x44};
 
 
+//==========================================================================================================
+//
+//==========================================================================================================
 /* Full Database Description - Used to add attributes into the database */
 static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] =
 {
@@ -402,6 +436,9 @@ static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] =
 
 };
 
+//==========================================================================================================
+//
+//==========================================================================================================
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     switch (event) {
@@ -462,6 +499,10 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+
+//==========================================================================================================
+//
+//==========================================================================================================
 void example_prepare_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param)
 {
     ESP_LOGI(GATTS_TABLE_TAG, "prepare write, handle = %d, value len = %d", param->write.handle, param->write.len);
@@ -508,6 +549,10 @@ void example_prepare_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t 
 
 }
 
+
+//==========================================================================================================
+//
+//==========================================================================================================
 void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     if (param->exec_write.exec_write_flag == ESP_GATT_PREP_WRITE_EXEC && prepare_write_env->prepare_buf){
         esp_log_buffer_hex(GATTS_TABLE_TAG, prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
@@ -521,6 +566,11 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 
+
+
+//==========================================================================================================
+//
+//==========================================================================================================
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     switch (event) {
@@ -668,6 +718,10 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 }
 
 
+
+//==========================================================================================================
+//
+//==========================================================================================================
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
 
@@ -695,6 +749,12 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     } while (0);
 }
 
+//==========================================================================================================
+//==========================================================================================================
+//
+//
+//==========================================================================================================
+//==========================================================================================================
 void app_main(void)
 {
     esp_err_t ret;
