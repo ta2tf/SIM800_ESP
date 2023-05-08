@@ -61,30 +61,6 @@
 static uint8_t s_led_state = 0;
 
 
-QueueHandle_t GSM_RX_queuehandle;
-
-
-static void GSM_PowerInit(void)
-{
-    gpio_reset_pin(MODEM_PWRKEY);
-    gpio_set_direction(MODEM_PWRKEY, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(MODEM_POWER_ON);
-    gpio_set_direction(MODEM_POWER_ON, GPIO_MODE_OUTPUT);
-
-    // GSM power supply Enable
-    gpio_set_level(MODEM_POWER_ON, HI_LEVEL);
-
-
-    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    gpio_set_level(MODEM_PWRKEY, LO_LEVEL);
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
-
-}
-
-
 
 
 
@@ -117,6 +93,72 @@ static void led_blink_task(void *arg)
 
 
 static const int GSM_RX_BUF_SIZE = 1024;
+
+QueueHandle_t GSM_RX_queuehandle;
+QueueHandle_t interputQueue;
+
+
+static void IRAM_ATTR gpio_interrupt_handler(void *args)
+{
+    int pinNumber = (int)args;
+    xQueueSendFromISR(interputQueue, &pinNumber, NULL);
+}
+
+
+
+static void GSM_INT_Task(void *arg)
+{
+    static const char *INT_TASK_TAG = "INT_TASK";
+    esp_log_level_set(INT_TASK_TAG, ESP_LOG_INFO);
+    while (1) {
+    	int pinNumber, count = 0;
+        if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
+        {
+        	ESP_LOGI(INT_TASK_TAG,"GPIO %d was pressed %d times.\n", pinNumber, count++);
+
+        }
+    }
+}
+
+
+static void GSM_PINInit(void)
+{
+	// RI pin Ring interrupt enable
+	gpio_reset_pin(MODEM_RI);
+	gpio_set_direction(MODEM_RI, GPIO_MODE_INPUT);
+	gpio_intr_enable(MODEM_RI);
+	gpio_set_intr_type(MODEM_RI,GPIO_INTR_ANYEDGE);
+
+	gpio_install_isr_service(0);
+	gpio_isr_handler_add(MODEM_RI, gpio_interrupt_handler, (void *)MODEM_RI);
+
+}
+
+
+static void GSM_PowerInit(void)
+{
+    gpio_reset_pin(MODEM_PWRKEY);
+    gpio_set_direction(MODEM_PWRKEY, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(MODEM_POWER_ON);
+    gpio_set_direction(MODEM_POWER_ON, GPIO_MODE_OUTPUT);
+
+
+
+
+
+    // GSM power supply Enable
+    gpio_set_level(MODEM_POWER_ON, HI_LEVEL);
+
+    // toggle SIM800 Powerkey
+    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    gpio_set_level(MODEM_PWRKEY, LO_LEVEL);
+    vTaskDelay(1000/ portTICK_PERIOD_MS);
+    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
+
+}
+
 
 
 void GSM_UART_Init(void) {
@@ -676,8 +718,11 @@ void app_main(void)
 
      xTaskCreate(led_blink_task, "led_blink_task", 1024*2, NULL, configMAX_PRIORITIES-2, NULL);
 
+     interputQueue = xQueueCreate(10, sizeof(int));
+     xTaskCreate(GSM_INT_Task, "uart_INT_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
 
 
+     GSM_PINInit();
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
