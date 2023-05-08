@@ -11,7 +11,7 @@
 * Run the gatt_client demo, the client demo will automatically connect to the gatt_server_service_table demo.
 * Client demo will enable GATT server's notify after connection. The two devices will then exchange
 * data.
-* add github
+* add github now
 ****************************************************************************/
 
 
