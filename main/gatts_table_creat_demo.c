@@ -12,6 +12,7 @@
 * Client demo will enable GATT server's notify after connection. The two devices will then exchange
 * data.
 * add github now
+* add home adition
 ****************************************************************************/
 
 
