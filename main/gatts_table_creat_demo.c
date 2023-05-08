@@ -18,6 +18,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
+#include "freertos/queue.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
@@ -60,7 +61,10 @@
 static uint8_t s_led_state = 0;
 
 
-static void configure_GSM_Power(void)
+QueueHandle_t GSM_RX_queuehandle;
+
+
+static void GSM_PowerInit(void)
 {
     gpio_reset_pin(MODEM_PWRKEY);
     gpio_set_direction(MODEM_PWRKEY, GPIO_MODE_OUTPUT);
@@ -112,10 +116,10 @@ static void led_blink_task(void *arg)
 }
 
 
-static const int RX_BUF_SIZE = 1024;
+static const int GSM_RX_BUF_SIZE = 1024;
 
 
-void init(void) {
+void GSM_UART_Init(void) {
     const uart_config_t uart_config = {
         .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
@@ -125,12 +129,12 @@ void init(void) {
         .source_clk = UART_SCLK_DEFAULT,
     };
     // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    uart_driver_install(UART_NUM_1, GSM_RX_BUF_SIZE * 2, 0, 0, NULL, 0);
     uart_param_config(UART_NUM_1, &uart_config);
     uart_set_pin(UART_NUM_1, MODEM_TX, MODEM_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
-int sendData(const char* logName, const char* data)
+int GSM_SendData(const char* logName, const char* data)
 {
     const int len = strlen(data);
     const int txBytes = uart_write_bytes(UART_NUM_1, data, len);
@@ -138,23 +142,23 @@ int sendData(const char* logName, const char* data)
     return txBytes;
 }
 
-static void tx_task(void *arg)
+static void GSM_TX_Task(void *arg)
 {
     static const char *TX_TASK_TAG = "TX_TASK";
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     while (1) {
-        sendData(TX_TASK_TAG, "AT+CSQ\r\n");
+    	GSM_SendData(TX_TASK_TAG, "AT+CSQ\r\n");
         vTaskDelay(10000 / portTICK_PERIOD_MS);
     }
 }
 
-static void rx_task(void *arg)
+static void GSM_RX_Task(void *arg)
 {
     static const char *RX_TASK_TAG = "RX_TASK";
     esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
-    uint8_t* data = (uint8_t*) malloc(RX_BUF_SIZE+1);
+    uint8_t* data = (uint8_t*) malloc(GSM_RX_BUF_SIZE+1);
     while (1) {
-        const int rxBytes = uart_read_bytes(UART_NUM_1, data, RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
+        const int rxBytes = uart_read_bytes(UART_NUM_1, data, GSM_RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
         if (rxBytes > 0) {
             data[rxBytes] = 0;
             ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
@@ -662,14 +666,13 @@ void app_main(void)
     ESP_ERROR_CHECK( ret );
 
 
-    configure_led();
+     configure_led();
 
-    configure_GSM_Power();
+     GSM_PowerInit();
+     GSM_UART_Init();
 
-
-     init();
-     xTaskCreate(rx_task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
-     xTaskCreate(tx_task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
+     xTaskCreate(GSM_RX_Task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
+     xTaskCreate(GSM_TX_Task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
 
      xTaskCreate(led_blink_task, "led_blink_task", 1024*2, NULL, configMAX_PRIORITIES-2, NULL);
 
