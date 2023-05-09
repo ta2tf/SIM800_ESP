@@ -599,9 +599,6 @@ uint8_t double_press_detect(void){
 
 void IP5306_Read_task()
 {
-	uint8_t rx_data[5];
-	uint8_t tx_data = 35;;
-	esp_err_t ret;
 
 	  uint8_t read_reg=0;
 
