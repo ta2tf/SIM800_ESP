@@ -1,3 +1,12 @@
+idf.py clean 
+idf.py set-target esp32 
+idf.py menuconfig 
+idf.py partition-table 
+idf.py build
+idf.py -p COM17 flash 
+
+
+
 | Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-H2 | ESP32-S3 |
 | ----------------- | ----- | -------- | -------- | -------- | -------- |
 
