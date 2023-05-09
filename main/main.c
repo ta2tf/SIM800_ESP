@@ -28,11 +28,10 @@
 
 #include "esp_check.h"
 #include "driver/gpio.h"
+
 #include "gsm.h"
 #include "ble.h"
-
-
-extern QueueHandle_t interputQueue;
+#include "led.h"
 
 
 //==========================================================================================================
@@ -54,21 +53,7 @@ void app_main(void)
     ESP_ERROR_CHECK( ret );
 
 
-     configure_led();
-
-     GSM_PowerInit();
-     GSM_UART_Init();
-
-     xTaskCreate(GSM_RX_Task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
-     xTaskCreate(GSM_TX_Task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-
-     xTaskCreate(led_blink_task, "led_blink_task", 1024*2, NULL, configMAX_PRIORITIES-2, NULL);
-
-     interputQueue = xQueueCreate(10, sizeof(int));
-     xTaskCreate(GSM_INT_Task, "uart_INT_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-
-
-     GSM_PINInit();
-
-     BLE_Init();
+    LED_Init();
+    BLE_Init();
+    GSM_Init();
 }

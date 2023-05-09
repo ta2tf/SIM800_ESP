@@ -25,8 +25,16 @@
 #include "gsm.h"
 
 
+ void GSM_TX_Task(void *arg);
+ void GSM_RX_Task(void *arg);
+ void GSM_INT_Task(void *arg);
 
-static uint8_t s_led_state = 0;
+
+ void GSM_PowerInit(void);
+ void GSM_PINInit(void);
+ void GSM_UART_Init(void);
+
+
 
 static const int GSM_RX_BUF_SIZE = 1024;
 
@@ -34,42 +42,6 @@ QueueHandle_t GSM_RX_Queue;
 QueueHandle_t interputQueue;
 
 
-
-//==========================================================================================================
-//
-//==========================================================================================================
- void configure_led(void)
-{
-    gpio_reset_pin(LED_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
- void blink_led(void)
-{
-    /* Set the GPIO level according to the state (LOW or HIGH)*/
-    gpio_set_level(LED_GPIO, s_led_state);
-}
-
-//==========================================================================================================
-//
-//==========================================================================================================
- void led_blink_task(void *arg)
-{
-
-	configure_led();
-
-    while (1) {
-
-    	blink_led();
-    	s_led_state = !s_led_state;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
-}
 
 
 
@@ -209,3 +181,21 @@ int GSM_SendData(const char* logName, const char* data)
 }
 
 
+ //==========================================================================================================
+ //
+ //==========================================================================================================
+  void GSM_Init(void)
+ {
+	 GSM_PowerInit();
+	 GSM_UART_Init();
+
+	 xTaskCreate(GSM_RX_Task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
+	 xTaskCreate(GSM_TX_Task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
+
+	 interputQueue = xQueueCreate(10, sizeof(int));
+	 xTaskCreate(GSM_INT_Task, "uart_INT_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
+
+
+	 GSM_PINInit();
+
+ }
