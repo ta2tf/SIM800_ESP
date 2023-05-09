@@ -1,19 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ * ble.c
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ *  Created on: 9 May 2023
+ *      Author: MertechArge014
  */
 
-/****************************************************************************
-*
-* This demo showcases creating a GATT database using a predefined attribute table.
-* It acts as a GATT server and can send adv data, be connected by client.
-* Run the gatt_client demo, the client demo will automatically connect to the gatt_server_service_table demo.
-* Client demo will enable GATT server's notify after connection. The two devices will then exchange
-* data.
-* add github now
-* add home adition
-****************************************************************************/
+
+#include "ble.h"
+
 
 
 #include "freertos/FreeRTOS.h"
@@ -23,226 +17,19 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "esp_bt.h"
 
+#include "esp_bt.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
 #include "esp_bt_main.h"
-#include "gatts_table_creat_demo.h"
 #include "esp_gatt_common_api.h"
 
 #include "driver/gpio.h"
-#include "driver/uart.h"
-
-
-#define MODEM_RST             5
-#define MODEM_PWRKEY          4
-#define MODEM_POWER_ON       23
-
-#define MODEM_TX             27
-#define MODEM_RX             26
-
-#define MODEM_DTR            32
-#define MODEM_RI             33
-
-#define I2C_SDA              21
-#define I2C_SCL              22
-#define LED_GPIO             13
-#define LED_ON               HIGH
-#define LED_OFF              LOW
-
-#define HI_LEVEL             1
-#define LO_LEVEL             0
-
-
-#define IP5306_ADDR          0x75
-#define IP5306_REG_SYS_CTL0  0x00
-
-
-static uint8_t s_led_state = 0;
+#include "esp_check.h"
 
 
 
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void configure_led(void)
-{
-    gpio_reset_pin(LED_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void blink_led(void)
-{
-    /* Set the GPIO level according to the state (LOW or HIGH)*/
-    gpio_set_level(LED_GPIO, s_led_state);
-}
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void led_blink_task(void *arg)
-{
-
-	configure_led();
-
-    while (1) {
-
-    	blink_led();
-    	s_led_state = !s_led_state;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
-}
-
-
-static const int GSM_RX_BUF_SIZE = 1024;
-
-QueueHandle_t GSM_RX_queuehandle;
-QueueHandle_t interputQueue;
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void IRAM_ATTR gpio_interrupt_handler(void *args)
-{
-    int pinNumber = (int)args;
-    xQueueSendFromISR(interputQueue, &pinNumber, NULL);
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void GSM_INT_Task(void *arg)
-{
-    static const char *INT_TASK_TAG = "INT_TASK";
-    esp_log_level_set(INT_TASK_TAG, ESP_LOG_INFO);
-    while (1) {
-    	int pinNumber, count = 0;
-        if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
-        {
-        	ESP_LOGI(INT_TASK_TAG,"GPIO %d was pressed %d times.\n", pinNumber, count++);
-
-        }
-    }
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void GSM_PINInit(void)
-{
-	// RI pin Ring interrupt enable
-	gpio_reset_pin(MODEM_RI);
-	gpio_set_direction(MODEM_RI, GPIO_MODE_INPUT);
-	gpio_intr_enable(MODEM_RI);
-	gpio_set_intr_type(MODEM_RI,GPIO_INTR_ANYEDGE);
-
-	gpio_install_isr_service(0);
-	gpio_isr_handler_add(MODEM_RI, gpio_interrupt_handler, (void *)MODEM_RI);
-
-}
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void GSM_PowerInit(void)
-{
-    gpio_reset_pin(MODEM_PWRKEY);
-    gpio_set_direction(MODEM_PWRKEY, GPIO_MODE_OUTPUT);
-
-    gpio_reset_pin(MODEM_POWER_ON);
-    gpio_set_direction(MODEM_POWER_ON, GPIO_MODE_OUTPUT);
-
-
-
-
-
-    // GSM power supply Enable
-    gpio_set_level(MODEM_POWER_ON, HI_LEVEL);
-
-    // toggle SIM800 Powerkey
-    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    gpio_set_level(MODEM_PWRKEY, LO_LEVEL);
-    vTaskDelay(1000/ portTICK_PERIOD_MS);
-    gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
-
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
-void GSM_UART_Init(void) {
-    const uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_DEFAULT,
-    };
-    // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM_1, GSM_RX_BUF_SIZE * 2, 0, 0, NULL, 0);
-    uart_param_config(UART_NUM_1, &uart_config);
-    uart_set_pin(UART_NUM_1, MODEM_TX, MODEM_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-}
-
-//==========================================================================================================
-//
-//==========================================================================================================
-int GSM_SendData(const char* logName, const char* data)
-{
-    const int len = strlen(data);
-    const int txBytes = uart_write_bytes(UART_NUM_1, data, len);
-    ESP_LOGI(logName, "Wrote %d bytes", txBytes);
-    return txBytes;
-}
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void GSM_TX_Task(void *arg)
-{
-    static const char *TX_TASK_TAG = "TX_TASK";
-    esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
-    while (1) {
-    	GSM_SendData(TX_TASK_TAG, "AT+CSQ\r\n");
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
-    }
-}
-
-
-//==========================================================================================================
-//
-//==========================================================================================================
-static void GSM_RX_Task(void *arg)
-{
-    static const char *RX_TASK_TAG = "RX_TASK";
-    esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
-    uint8_t* data = (uint8_t*) malloc(GSM_RX_BUF_SIZE+1);
-    while (1) {
-        const int rxBytes = uart_read_bytes(UART_NUM_1, data, GSM_RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
-        if (rxBytes > 0) {
-            data[rxBytes] = 0;
-            ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
-            ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
-        }
-    }
-    free(data);
-}
-
-
-
-
+extern QueueHandle_t interputQueue;
 
 #define GATTS_TABLE_TAG "GATTS_TABLE_DEMO"
 
@@ -750,40 +537,12 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     } while (0);
 }
 
-//==========================================================================================================
-//==========================================================================================================
-//
-//
-//==========================================================================================================
-//==========================================================================================================
-void app_main(void)
+
+
+void BLE_Init(void)
 {
-    esp_err_t ret;
 
-    /* Initialize NVS. */
-    ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK( ret );
-
-
-     configure_led();
-
-     GSM_PowerInit();
-     GSM_UART_Init();
-
-     xTaskCreate(GSM_RX_Task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
-     xTaskCreate(GSM_TX_Task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-
-     xTaskCreate(led_blink_task, "led_blink_task", 1024*2, NULL, configMAX_PRIORITIES-2, NULL);
-
-     interputQueue = xQueueCreate(10, sizeof(int));
-     xTaskCreate(GSM_INT_Task, "uart_INT_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
-
-
-     GSM_PINInit();
+	esp_err_t ret;
 
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 

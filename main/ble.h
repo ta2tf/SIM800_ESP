@@ -1,14 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ * ble.h
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
- * add git
+ *  Created on: 9 May 2023
+ *      Author: MertechArge014
  */
+
+#ifndef MAIN_BLE_H_
+#define MAIN_BLE_H_
 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 
 /* Attributes State Machine */
@@ -27,3 +31,7 @@ enum
 
     HRS_IDX_NB,
 };
+
+void BLE_Init(void);
+
+#endif /* MAIN_BLE_H_ */
