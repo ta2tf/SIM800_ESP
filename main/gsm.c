@@ -81,19 +81,12 @@ QueueHandle_t interputQueue;
 	// RI pin Ring interrupt enable
 	gpio_reset_pin(MODEM_RI);
 	gpio_set_direction(MODEM_RI, GPIO_MODE_INPUT);
-	gpio_intr_enable(MODEM_RI);
-	gpio_set_intr_type(MODEM_RI,GPIO_INTR_ANYEDGE);
 
-	gpio_install_isr_service(0);
-	gpio_isr_handler_add(MODEM_RI, gpio_interrupt_handler, (void *)MODEM_RI);
 
-}
 
-//==========================================================================================================
-//
-//==========================================================================================================
- void GSM_PowerInit(void)
-{
+	gpio_reset_pin(MODEM_DTR);
+	gpio_set_direction(MODEM_DTR, GPIO_MODE_OUTPUT);
+
     gpio_reset_pin(MODEM_PWRKEY);
     gpio_set_direction(MODEM_PWRKEY, GPIO_MODE_OUTPUT);
 
@@ -102,10 +95,31 @@ QueueHandle_t interputQueue;
 
 
 
-
-
     // GSM power supply Enable
     gpio_set_level(MODEM_POWER_ON, HI_LEVEL);
+
+}
+
+
+ //==========================================================================================================
+ //
+ //==========================================================================================================
+  void GSM_RINGInit(void)
+ {
+	gpio_intr_enable(MODEM_RI);
+	gpio_set_intr_type(MODEM_RI,GPIO_INTR_ANYEDGE);
+
+
+	gpio_install_isr_service(0);
+	gpio_isr_handler_add(MODEM_RI, gpio_interrupt_handler, (void *)MODEM_RI);
+
+ }
+
+//==========================================================================================================
+//
+//==========================================================================================================
+ void GSM_PowerUp(void)
+{
 
     // toggle SIM800 Powerkey
     gpio_set_level(MODEM_PWRKEY, HI_LEVEL);
@@ -186,8 +200,14 @@ int GSM_SendData(const char* logName, const char* data)
  //==========================================================================================================
   void GSM_Init(void)
  {
-	 GSM_PowerInit();
+
+	 GSM_PINInit();
+
+	 GSM_PowerUp();
+
 	 GSM_UART_Init();
+
+	  vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 	 xTaskCreate(GSM_RX_Task, "uart_rx_task", 1024*2, NULL, configMAX_PRIORITIES, NULL);
 	 xTaskCreate(GSM_TX_Task, "uart_tx_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
@@ -195,7 +215,5 @@ int GSM_SendData(const char* logName, const char* data)
 	 interputQueue = xQueueCreate(10, sizeof(int));
 	 xTaskCreate(GSM_INT_Task, "uart_INT_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
 
-
-	 GSM_PINInit();
-
+	 GSM_RINGInit();
  }
