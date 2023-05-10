@@ -17,7 +17,7 @@
 #define I2C_SDA              21
 #define I2C_SCL              22
 
-#define IP5306_ADDR          0x75
+#define IP5306_ADDR          0xEA
 #define IP5306_REG_SYS_CTL0  0x00
 
 

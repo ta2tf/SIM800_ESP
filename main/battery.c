@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
@@ -23,6 +24,10 @@ static const char *BAT_TAG = "BAT_TASK";
 
 #define DEFAULT_VREF    1100        //Use adc2_vref_to_gpio() to obtain a better estimate
 #define NO_OF_SAMPLES   64          //Multisampling
+
+
+QueueHandle_t BatteryQueue;
+
 
 static esp_adc_cal_characteristics_t *adc_chars;
 
@@ -102,6 +107,9 @@ void bat_task(void *arg)
         //Convert adc_reading to voltage in mV
         int voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
         ESP_LOGI(BAT_TAG, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
+
+        xQueueSend(BatteryQueue, &voltage, NULL);
+
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -114,6 +122,8 @@ void bat_task(void *arg)
   void bat_Init(void)
  {
 
+   BatteryQueue = xQueueCreate(10, sizeof(int));
    xTaskCreate(bat_task, "Battery_task", 1024*2, NULL, configMAX_PRIORITIES-2, NULL);
+
  }
 

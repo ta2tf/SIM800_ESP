@@ -29,7 +29,8 @@
 
 
 
-extern QueueHandle_t interputQueue;
+
+extern QueueHandle_t BatteryQueue;
 
 #define GATTS_TABLE_TAG "GATTS_TABLE_DEMO"
 
@@ -173,7 +174,7 @@ static const uint8_t char_prop_read                =  ESP_GATT_CHAR_PROP_BIT_REA
 static const uint8_t char_prop_write               = ESP_GATT_CHAR_PROP_BIT_WRITE;
 static const uint8_t char_prop_read_write_notify   = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
 static const uint8_t heart_measurement_ccc[2]      = {0x00, 0x00};
-static const uint8_t char_value[4]                 = {0x11, 0x22, 0x33, 0x44};
+static  uint8_t char_value[4]                 = {0x11, 0x22, 0x33, 0x44};
 
 
 //==========================================================================================================
@@ -406,7 +407,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                 // the data length of gattc write  must be less than GATTS_DEMO_CHAR_VAL_LEN_MAX.
                 ESP_LOGI(GATTS_TABLE_TAG, "GATT_WRITE_EVT, handle = %d, value len = %d, value :", param->write.handle, param->write.len);
                 esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
-                if (heart_rate_handle_table[IDX_CHAR_CFG_A] == param->write.handle && param->write.len == 2){
+
+                 if (heart_rate_handle_table[IDX_CHAR_CFG_A] == param->write.handle && param->write.len == 2){
                     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
                     if (descr_value == 0x0001){
                         ESP_LOGI(GATTS_TABLE_TAG, "notify enable");
@@ -539,6 +541,28 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 
 
+//==========================================================================================================
+//
+//==========================================================================================================
+ void BLE_BAT_Task(void *arg)
+{
+    static const char *BAT_TASK_TAG = "BAT_TASK";
+    esp_log_level_set(BAT_TASK_TAG, ESP_LOG_INFO);
+    while (1) {
+    	int BatVoltage;
+    	if (BatteryQueue != 0)  // Queue is created ?
+        if (xQueueReceive(BatteryQueue, &BatVoltage, portMAX_DELAY))
+        {
+        	ESP_LOGI(BAT_TASK_TAG,"Battery Voltage : %d \n", BatVoltage);
+        	sprintf(&char_value,"%x",BatVoltage);
+
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+}
+
+
+
 void BLE_Init(void)
 {
 
@@ -593,4 +617,8 @@ void BLE_Init(void)
     if (local_mtu_ret){
         ESP_LOGE(GATTS_TABLE_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
     }
+
+
+	 xTaskCreate(BLE_BAT_Task, "battery_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
+
 }

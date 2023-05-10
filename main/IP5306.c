@@ -31,7 +31,7 @@ static const char *TAG = "IP5306";
 #define ENABLE    1
 #define DISABLE   0
 
-#define IP5306_ADDRESS   0x75             //7 bit slave address
+#define IP5306_ADDRESS   0xEA            //7 bit slave address
 
 
 /******************************************************************
@@ -627,7 +627,7 @@ void IP5306_Read_task()
      boost_after_vin(ENABLE);
 
      //allow auto power on after load detection
-     power_on_load(ENABLE);
+     power_on_load(DISABLE);
 
      //enable boost mode
      boost_mode(ENABLE);
