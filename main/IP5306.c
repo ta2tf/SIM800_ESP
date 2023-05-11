@@ -23,36 +23,6 @@
 static const char *TAG = "IP5306";
 
 
-#define TIMEOUT_MS		10000
-#define DELAY_MS		1000
-
-
-/*macros definition*/
-#define ENABLE    1
-#define DISABLE   0
-
-#define IP5306_ADDRESS   0xEA            //7 bit slave address
-
-
-/******************************************************************
-*****************************Registers*****************************
-*******************************************************************
-*/
-#define SYS_CTL0       0x00
-#define SYS_CTL1       0x01
-#define SYS_CTL2       0x02
-
-#define Charger_CTL0   0x20
-#define Charger_CTL1   0x21
-#define Charger_CTL2   0x22
-#define Charger_CTL3   0x23
-
-#define CHG_DIG_CTL0   0x24
-
-#define REG_READ0      0x70
-#define REG_READ1      0x71
-#define REG_READ2      0x72
-#define REG_READ3      0x77
 
 
 /******************************************************************
@@ -597,6 +567,26 @@ uint8_t double_press_detect(void){
 }
 
 
+uint8_t Battery_Level(void)
+        {
+			uint8_t level;
+			level = i2c_read(IP5306_ADDRESS,REG_READ4);
+
+			if (level & BATTERY_0_BIT)
+				return 0;
+
+			else if (level & BATTERY_25_BIT)
+				return 25;
+			else if (level & BATTERY_50_BIT)
+				return 50;
+			else if (level & BATTERY_75_BIT)
+				return 75;
+
+			return 100;
+		}
+
+
+
 void IP5306_Read_task()
 {
 
@@ -640,7 +630,7 @@ void IP5306_Read_task()
 		  read_reg= i2c_read(IP5306_ADDRESS,SYS_CTL0);
 
 		ESP_LOGI(IP_TASK_TAG,"Read SYS_CTL0 : %d \n", read_reg);
-
+		ESP_LOGI(IP_TASK_TAG,"Battery Level : %d \n", Battery_Level());
 
 		vTaskDelay(DELAY_MS/portTICK_PERIOD_MS);
 	}
