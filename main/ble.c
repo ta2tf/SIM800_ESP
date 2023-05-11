@@ -50,7 +50,15 @@
 
 
 extern QueueHandle_t BatteryQueue;
+
 uint8_t BatValue[4];
+int BatVoltage;
+int BatVoltage_old;
+
+
+esp_gatt_if_t my_gatts_if;
+esp_ble_gatts_cb_param_t my_param;
+
 
 #define GATTS_TAG "GATTS_DEMO"
 
@@ -64,8 +72,8 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_NUM_HANDLE_TEST_A     4
 
 #define GATTS_SERVICE_UUID_TEST_B   ESP_GATT_UUID_BATTERY_SERVICE_SVC
-#define GATTS_CHAR_UUID_TEST_B      0x2AE1
-#define GATTS_DESCR_UUID_TEST_B     0x2B18
+#define GATTS_CHAR_UUID_TEST_B      0xFF02
+#define GATTS_DESCR_UUID_TEST_B     0x2AE1
 #define GATTS_NUM_HANDLE_TEST_B     4
 
 #define TEST_DEVICE_NAME            "ESP_GATTS_DEMO"
@@ -199,6 +207,11 @@ static prepare_type_env_t b_prepare_write_env;
 void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param);
 void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param);
 
+
+
+//==========================================================================================================
+// gap_event_handler
+//==========================================================================================================
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     switch (event) {
@@ -256,6 +269,10 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+
+//==========================================================================================================
+// example_write_event_env
+//==========================================================================================================
 void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     esp_gatt_status_t status = ESP_GATT_OK;
     if (param->write.need_rsp){
@@ -300,6 +317,11 @@ void example_write_event_env(esp_gatt_if_t gatts_if, prepare_type_env_t *prepare
     }
 }
 
+
+
+//==========================================================================================================
+// example_exec_write_event_env
+//==========================================================================================================
 void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble_gatts_cb_param_t *param){
     if (param->exec_write.exec_write_flag == ESP_GATT_PREP_WRITE_EXEC){
         esp_log_buffer_hex(GATTS_TAG, prepare_write_env->prepare_buf, prepare_write_env->prepare_len);
@@ -313,6 +335,11 @@ void example_exec_write_event_env(prepare_type_env_t *prepare_write_env, esp_ble
     prepare_write_env->prepare_len = 0;
 }
 
+
+
+//==========================================================================================================
+// gatts_profile_a_event_handler                                                                     AAAAAAA
+//==========================================================================================================
 static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     switch (event) {
     case ESP_GATTS_REG_EVT:
@@ -458,8 +485,7 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         for(int i = 0; i < length; i++){
             ESP_LOGI(GATTS_TAG, "prf_char[%x] =%x\n",i,prf_char[i]);
         }
-        esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_A_APP_ID].service_handle, &gl_profile_tab[PROFILE_A_APP_ID].descr_uuid,
-                                                                ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, NULL, NULL);
+        esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_A_APP_ID].service_handle, &gl_profile_tab[PROFILE_A_APP_ID].descr_uuid,  ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, NULL, NULL);
         if (add_descr_ret){
             ESP_LOGE(GATTS_TAG, "add char descr failed, error code =%x", add_descr_ret);
         }
@@ -515,6 +541,10 @@ static void gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     }
 }
 
+
+//==========================================================================================================
+// gatts_profile_b_event_handler                                                                      BBBBBB
+//==========================================================================================================
 static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     switch (event) {
     case ESP_GATTS_REG_EVT:
@@ -525,11 +555,20 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_B_APP_ID].service_id.id.uuid.uuid.uuid16 = GATTS_SERVICE_UUID_TEST_B;
 
         esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_B_APP_ID].service_id, GATTS_NUM_HANDLE_TEST_B);
+
+        memcpy(&my_gatts_if, &gatts_if,sizeof(esp_gatt_if_t));
+        memcpy(&my_param,param,sizeof(esp_ble_gatts_cb_param_t));
+
+
         break;
     case ESP_GATTS_READ_EVT: {
-        ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d\n", param->read.conn_id, param->read.trans_id, param->read.handle);
+
         esp_gatt_rsp_t rsp;
+
+        ESP_LOGI(GATTS_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d\n", param->read.conn_id, param->read.trans_id, param->read.handle);
+
         memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
+
         rsp.attr_value.handle = param->read.handle;
         rsp.attr_value.len = 4;
         rsp.attr_value.value[0] = BatValue[0];
@@ -537,8 +576,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         rsp.attr_value.value[2] = BatValue[2];
         rsp.attr_value.value[3] = BatValue[3];
 
-        esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id,
-                                    ESP_GATT_OK, &rsp);
+        esp_ble_gatts_send_response(gatts_if, param->read.conn_id, param->read.trans_id, ESP_GATT_OK, &rsp);
         break;
     }
     case ESP_GATTS_WRITE_EVT: {
@@ -551,27 +589,32 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                 if (descr_value == 0x0001){
                     if (b_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY){
                         ESP_LOGI(GATTS_TAG, "notify enable");
-                        uint8_t notify_data[15];
-                        for (int i = 0; i < sizeof(notify_data); ++i)
+                        uint8_t notify_data[4];
+
+
+                        for (int i = 0; i < 4; ++i)
                         {
-                            notify_data[i] = i%0xff;
+                            notify_data[i] = BatValue[i];
                         }
+
                         //the size of notify_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle,
-                                                sizeof(notify_data), notify_data, false);
+                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(notify_data), notify_data, false);
                     }
                 }else if (descr_value == 0x0002){
-                    if (b_property & ESP_GATT_CHAR_PROP_BIT_INDICATE){
+                    if (b_property & ESP_GATT_CHAR_PROP_BIT_INDICATE)
+                     {
                         ESP_LOGI(GATTS_TAG, "indicate enable");
-                        uint8_t indicate_data[15];
-                        for (int i = 0; i < sizeof(indicate_data); ++i)
-                        {
-                            indicate_data[i] = i%0xff;
-                        }
+                        uint8_t indicate_data[4];
+
+                        for (int i = 0; i < 4; ++i)
+                                            {
+                        	indicate_data[i] = BatValue[i];
+                                            }
+
+
                         //the size of indicate_data[] need less than MTU size
-                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle,
-                                                sizeof(indicate_data), indicate_data, true);
-                    }
+                        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(indicate_data), indicate_data, true);
+                     }
                 }
                 else if (descr_value == 0x0000){
                     ESP_LOGI(GATTS_TAG, "notify/indicate disable ");
@@ -619,9 +662,8 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
         gl_profile_tab[PROFILE_B_APP_ID].char_handle = param->add_char.attr_handle;
         gl_profile_tab[PROFILE_B_APP_ID].descr_uuid.len = ESP_UUID_LEN_16;
         gl_profile_tab[PROFILE_B_APP_ID].descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
-        esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_B_APP_ID].service_handle, &gl_profile_tab[PROFILE_B_APP_ID].descr_uuid,
-                                     ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
-                                     NULL, NULL);
+        esp_ble_gatts_add_char_descr(gl_profile_tab[PROFILE_B_APP_ID].service_handle, &gl_profile_tab[PROFILE_B_APP_ID].descr_uuid, ESP_GATT_PERM_READ  | ESP_GATT_PERM_WRITE, NULL, NULL);
+
         break;
     case ESP_GATTS_ADD_CHAR_DESCR_EVT:
         gl_profile_tab[PROFILE_B_APP_ID].descr_handle = param->add_char_descr.attr_handle;
@@ -654,12 +696,20 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
     case ESP_GATTS_CANCEL_OPEN_EVT:
     case ESP_GATTS_CLOSE_EVT:
     case ESP_GATTS_LISTEN_EVT:
+
+
+
+    	break;
     case ESP_GATTS_CONGEST_EVT:
     default:
         break;
     }
 }
 
+
+//==========================================================================================================
+// gatts_event_handler
+//==========================================================================================================
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
     /* If event is register event, store the gatts_if for each profile */
@@ -673,6 +723,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             return;
         }
     }
+
 
     /* If the gatts_if equal to profile A, call profile A cb handler,
      * so here call each profile's callback */
@@ -692,25 +743,44 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 
 //==========================================================================================================
-//
+// BLE_BAT_Task
 //==========================================================================================================
- void BLE_BAT_Task(void *arg)
+ void BLE_BAT_Task(void *args)
 {
     static const char *BAT_TASK_TAG = "BAT_TASK";
     esp_log_level_set(BAT_TASK_TAG, ESP_LOG_INFO);
     while (1) {
-    	int BatVoltage;
+
     	if (BatteryQueue != 0)  // Queue is created ?
         if (xQueueReceive(BatteryQueue, &BatVoltage, portMAX_DELAY))
         {
         	ESP_LOGI(BAT_TASK_TAG,"Battery Voltage : %d \n", BatVoltage);
 
 
-        	BatValue[0] = (BatVoltage >> 24) & 0xFF;
-        	BatValue[1] = (BatVoltage >> 16) & 0xFF;
-        	BatValue[2] = (BatVoltage >> 8) & 0xFF;
-        	BatValue[3] = (BatVoltage >> 0) & 0xFF;
 
+          		uint8_t notify_data[4];
+          		 if (b_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY)
+          		  {
+          			 if (BatVoltage != BatVoltage_old)
+          			  {
+          					for (int i = 0; i < 4; ++i)
+          					{
+          					  ESP_LOGI(GATTS_TAG, "L I S T E N  enable");
+          						notify_data[i] = BatValue[i];
+          					}
+          					esp_ble_gatts_send_indicate(my_gatts_if, my_param.write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(notify_data), notify_data, false);
+          			  }
+          		  }
+
+
+                 if (  BatVoltage != BatVoltage_old)
+                 {
+     				BatValue[0] = (BatVoltage >> 24) & 0xFF;
+     				BatValue[1] = (BatVoltage >> 16) & 0xFF;
+     				BatValue[2] = (BatVoltage >> 8) & 0xFF;
+     				BatValue[3] = (BatVoltage >> 0) & 0xFF;
+     				BatVoltage_old = BatVoltage;
+                 }
 
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -718,7 +788,9 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 }
 
 
-
+ //==========================================================================================================
+ // BLE_Init
+ //==========================================================================================================
 void BLE_Init(void)
 {
     esp_err_t ret;
@@ -781,7 +853,7 @@ void BLE_Init(void)
         ESP_LOGE(GATTS_TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
     }
 
-    xTaskCreate(BLE_BAT_Task, "battery_task", 1024*2, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(BLE_BAT_Task, "battery_task", 1024*2,NULL, configMAX_PRIORITIES-1, NULL);
 
     return;
 }
