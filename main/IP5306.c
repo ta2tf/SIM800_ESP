@@ -627,7 +627,7 @@ void IP5306_Read_task()
      boost_after_vin(ENABLE);
 
      //allow auto power on after load detection
-     power_on_load(DISABLE);
+     power_on_load(ENABLE);
 
      //enable boost mode
      boost_mode(ENABLE);
