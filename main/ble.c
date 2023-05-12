@@ -56,8 +56,6 @@ int BatVoltage;
 int BatVoltage_old;
 
 
-esp_gatt_if_t my_gatts_if;
-esp_ble_gatts_cb_param_t my_param;
 
 
 #define GATTS_TAG "GATTS_DEMO"
@@ -182,6 +180,7 @@ struct gatts_profile_inst {
     esp_gatt_char_prop_t property;
     uint16_t descr_handle;
     esp_bt_uuid_t descr_uuid;
+
 };
 
 /* One gatt-based profile one app_id and one gatts_if, this array will store the gatts_if returned by ESP_GATTS_REG_EVT */
@@ -556,8 +555,6 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 
         esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_B_APP_ID].service_id, GATTS_NUM_HANDLE_TEST_B);
 
-        memcpy(&my_gatts_if, &gatts_if,sizeof(esp_gatt_if_t));
-        memcpy(&my_param,param,sizeof(esp_ble_gatts_cb_param_t));
 
 
         break;
@@ -756,32 +753,26 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
         {
         	ESP_LOGI(BAT_TASK_TAG,"Battery Voltage : %d \n", BatVoltage);
 
-
-
           		uint8_t notify_data[4];
           		 if (b_property & ESP_GATT_CHAR_PROP_BIT_NOTIFY)
           		  {
           			 if (BatVoltage != BatVoltage_old)
           			  {
-          				ESP_LOGI(GATTS_TAG, "Notify Battery voltage : %X", BatVoltage);
+							BatValue[0] = (BatVoltage >> 24) & 0xFF;
+							BatValue[1] = (BatVoltage >> 16) & 0xFF;
+							BatValue[2] = (BatVoltage >> 8) & 0xFF;
+							BatValue[3] = (BatVoltage >> 0) & 0xFF;
+
+          				    ESP_LOGI(GATTS_TAG, "Notify Battery voltage : %X", BatVoltage);
           					for (int i = 0; i < 4; ++i)
           					{
-
           						notify_data[i] = BatValue[i];
           					}
-          					esp_ble_gatts_send_indicate(my_gatts_if, my_param.write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(notify_data), notify_data, false);
+
+          					esp_ble_gatts_send_indicate(gl_profile_tab[PROFILE_B_APP_ID].gatts_if,  gl_profile_tab[PROFILE_B_APP_ID].conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(notify_data), notify_data, false);
+          					BatVoltage_old = BatVoltage;
           			  }
           		  }
-
-
-                 if (  BatVoltage != BatVoltage_old)
-                 {
-     				BatValue[0] = (BatVoltage >> 24) & 0xFF;
-     				BatValue[1] = (BatVoltage >> 16) & 0xFF;
-     				BatValue[2] = (BatVoltage >> 8) & 0xFF;
-     				BatValue[3] = (BatVoltage >> 0) & 0xFF;
-     				BatVoltage_old = BatVoltage;
-                 }
 
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);

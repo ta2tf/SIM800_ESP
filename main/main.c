@@ -25,6 +25,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "esp_log.h"
 
 #include "esp_check.h"
 #include "driver/gpio.h"
@@ -35,6 +36,9 @@
 #include "IP5306.h"
 #include "battery.h"
 
+
+static const char *TAG = "MAIN";
+
 //==========================================================================================================
 //==========================================================================================================
 //
@@ -44,6 +48,13 @@
 void app_main(void)
 {
     esp_err_t ret;
+
+	esp_log_level_set(TAG, ESP_LOG_INFO);
+
+    ESP_LOGI(TAG, "[APP] Startup..");
+    ESP_LOGI(TAG, "[APP] Free memory: %d bytes", (int) esp_get_free_heap_size());
+    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+
 
     /* Initialize NVS. */
     ret = nvs_flash_init();
