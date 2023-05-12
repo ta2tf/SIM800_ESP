@@ -72,7 +72,7 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
 #define GATTS_NUM_HANDLE_TEST_A     4
 
 #define GATTS_SERVICE_UUID_TEST_B   ESP_GATT_UUID_BATTERY_SERVICE_SVC
-#define GATTS_CHAR_UUID_TEST_B      0xFF02
+#define GATTS_CHAR_UUID_TEST_B      0x2B18
 #define GATTS_DESCR_UUID_TEST_B     0x2AE1
 #define GATTS_NUM_HANDLE_TEST_B     4
 
@@ -763,9 +763,10 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
           		  {
           			 if (BatVoltage != BatVoltage_old)
           			  {
+          				ESP_LOGI(GATTS_TAG, "Notify Battery voltage : %X", BatVoltage);
           					for (int i = 0; i < 4; ++i)
           					{
-          					  ESP_LOGI(GATTS_TAG, "L I S T E N  enable");
+
           						notify_data[i] = BatValue[i];
           					}
           					esp_ble_gatts_send_indicate(my_gatts_if, my_param.write.conn_id, gl_profile_tab[PROFILE_B_APP_ID].char_handle, sizeof(notify_data), notify_data, false);

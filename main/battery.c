@@ -106,11 +106,13 @@ void bat_task(void *arg)
         adc_reading /= NO_OF_SAMPLES;
         //Convert adc_reading to voltage in mV
         int voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
+        voltage = voltage * 2;
+
         ESP_LOGI(BAT_TAG, "Raw: %d\tVoltage: %dmV\n", adc_reading, voltage);
 
         xQueueSend(BatteryQueue, &voltage, NULL);
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 

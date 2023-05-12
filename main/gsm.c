@@ -55,22 +55,6 @@ QueueHandle_t interputQueue;
 }
 
 
-//==========================================================================================================
-//
-//==========================================================================================================
- void GSM_INT_Task(void *arg)
-{
-    static const char *INT_TASK_TAG = "INT_TASK";
-    esp_log_level_set(INT_TASK_TAG, ESP_LOG_INFO);
-    while (1) {
-    	int pinNumber, count = 0;
-        if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
-        {
-        	ESP_LOGI(INT_TASK_TAG,"GPIO %d was pressed %d times.\n", pinNumber, count++);
-
-        }
-    }
-}
 
 
 //==========================================================================================================
@@ -170,10 +154,10 @@ int GSM_SendData(const char* logName, const char* data)
     esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
     while (1) {
     	GSM_SendData(TX_TASK_TAG, "AT+CSQ\r\n");
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        vTaskDelay(20000 / portTICK_PERIOD_MS);
 
-        GSM_SendData(TX_TASK_TAG, "AT+CADC?\r\n");
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+//        GSM_SendData(TX_TASK_TAG, "AT+CADC?\r\n");
+//        vTaskDelay(20000 / portTICK_PERIOD_MS);
 
 
     }
@@ -198,6 +182,24 @@ int GSM_SendData(const char* logName, const char* data)
     }
     free(data);
 }
+
+ //==========================================================================================================
+ //
+ //==========================================================================================================
+  void GSM_INT_Task(void *arg)
+ {
+     static const char *INT_TASK_TAG = "INT_TASK";
+     esp_log_level_set(INT_TASK_TAG, ESP_LOG_INFO);
+     while (1) {
+     	int pinNumber = 0;
+         if (xQueueReceive(interputQueue, &pinNumber, portMAX_DELAY))
+         {
+         	ESP_LOGI(INT_TASK_TAG,"RING Received GPIO %d ", pinNumber);
+         	GSM_SendData(INT_TASK_TAG, "ATA\r\n");
+
+         }
+     }
+ }
 
 
  //==========================================================================================================

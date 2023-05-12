@@ -79,12 +79,6 @@ union{
 }reg_SYS_CTL2_t;
 
 
-/*SHUTDOWN_TIME_VALUE*/
-#define SHUTDOWN_8s                                 0
-#define SHUTDOWN_32s                                1
-#define SHUTDOWN_16s                                2
-#define SHUTDOWN_64s                                3
-
 
 
 /*Charger_CTL0*/
@@ -97,12 +91,6 @@ union{
      uint8_t reg_byte;
 }reg_Charger_CTL0_t;
 
-
-/*CUT-OFF VOLTAGE RANGE*/
-#define CUT_OFF_VOLTAGE_0                                   0     // 4.14/4.26/4.305/4.35  V
-#define CUT_OFF_VOLTAGE_1                                   1     // 4.17/4.275/4.32/4.365 V
-#define CUT_OFF_VOLTAGE_2                                   2     // 4.185/4.29/4.335/4.38 V
-#define CUT_OFF_VOLTAGE_3                                   3     // 4.2/4.305/4.35/4.395  V
 
 
 
@@ -119,22 +107,6 @@ union{
 }reg_Charger_CTL1_t;
 
 
-/*BATTERY STOP CHARGING CURRENT*/
-#define CURRENT_200                                 0
-#define CURRENT_400                                 1
-#define CURRENT_500                                 2
-#define CURRENT_600                                 3
-
-/*VOLTAGE SETTING FOR CHARGING*/
-#define VOUT_0                                0   //4.45
-#define VOUT_1                                1   //4.5
-#define VOUT_2                                2   //4.55
-#define VOUT_3                                3   //4.6
-#define VOUT_4                                4   //4.65
-#define VOUT_5                                5   //4.7
-#define VOUT_6                                6   //4.75
-#define VOUT_7                                7   //4.8
-
 
 
 /*Charger_CTL2*/
@@ -148,17 +120,6 @@ union{
      uint8_t reg_byte;
 }reg_Charger_CTL2_t;
 
-/*Battery Voltage */
-#define BATT_VOLTAGE_3                        3  //4.4
-#define BATT_VOLTAGE_2                        2  //4.35
-#define BATT_VOLTAGE_1                        1  //4.3
-#define BATT_VOLTAGE_0                        0  //4.2
-
-/*Voltage Pressure setting*/
-#define Pressurized_42                          3
-#define Pressurized_28                          2
-#define Pressurized_14                          1
-#define Not_pressurized                         0
 
 /*Charger_CTL3*/
 union{
@@ -232,13 +193,11 @@ union{
 
 
 
-
 static esp_err_t i2c_read(uint8_t ic_addr, uint8_t reg_addr)
 {
 	 uint8_t data;
 
      i2c_master_write_read_device(I2C_NUM_0, ic_addr, &reg_addr, 1, &data, 1, TIMEOUT_MS/portTICK_PERIOD_MS);
-     ESP_LOGI(TAG,"Read I2C: %d \n", data);
      return data;
 }
 
@@ -249,7 +208,6 @@ static esp_err_t i2c_write(uint8_t ic_addr, uint8_t reg_addr, uint8_t data)
     uint8_t write_buf[2] = {reg_addr, data};
 
     ret = i2c_master_write_to_device(I2C_NUM_0, ic_addr, write_buf, sizeof(write_buf), TIMEOUT_MS/portTICK_PERIOD_MS);
-
     return ret;
 }
 
@@ -572,9 +530,10 @@ uint8_t Battery_Level(void)
 			uint8_t level;
 			level = i2c_read(IP5306_ADDRESS,REG_READ4);
 
+			ESP_LOGI(TAG,"Read REG_READ4 : %d \n", level);
+
 			if (level & BATTERY_0_BIT)
 				return 0;
-
 			else if (level & BATTERY_25_BIT)
 				return 25;
 			else if (level & BATTERY_50_BIT)
@@ -592,8 +551,7 @@ void IP5306_Read_task()
 
 	  uint8_t read_reg=0;
 
-    static const char *IP_TASK_TAG = "IP_TASK";
-    esp_log_level_set(IP_TASK_TAG, ESP_LOG_INFO);
+
 
     //set battery voltage
      set_battery_voltage(BATT_VOLTAGE_0);   //4.2V
@@ -624,12 +582,52 @@ void IP5306_Read_task()
 	while (1) {
 
 
+		static const char *IP_TASK_TAG = "IP5306_TASK";
+		esp_log_level_set(IP_TASK_TAG, ESP_LOG_INFO);
+
+		read_reg= i2c_read(IP5306_ADDRESS,SYS_CTL0);
+		ESP_LOGI(IP_TASK_TAG,"Read SYS_CTL0 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,SYS_CTL1);
+		ESP_LOGI(IP_TASK_TAG,"Read SYS_CTL1 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,SYS_CTL2);
+		ESP_LOGI(IP_TASK_TAG,"Read SYS_CTL2 : 0x%02X \n", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,Charger_CTL0);
+		ESP_LOGI(IP_TASK_TAG,"Read Charger_CTL0 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,Charger_CTL1);
+		ESP_LOGI(IP_TASK_TAG,"Read Charger_CTL1 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,Charger_CTL2);
+		ESP_LOGI(IP_TASK_TAG,"Read Charger_CTL2 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,Charger_CTL3);
+		ESP_LOGI(IP_TASK_TAG,"Read Charger_CTL3 : 0x%02X \n", read_reg);
+
+
+		read_reg= i2c_read(IP5306_ADDRESS,CHG_DIG_CTL0);
+		ESP_LOGI(IP_TASK_TAG,"Read CHG_DIG_CTL0 : 0x%02X \n", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,REG_READ0);
+		ESP_LOGI(IP_TASK_TAG,"Read REG_READ0 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,REG_READ1);
+		ESP_LOGI(IP_TASK_TAG,"Read REG_READ1 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,REG_READ2);
+		ESP_LOGI(IP_TASK_TAG,"Read REG_READ2 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,REG_READ3);
+		ESP_LOGI(IP_TASK_TAG,"Read REG_READ3 : 0x%02X", read_reg);
+
+		read_reg= i2c_read(IP5306_ADDRESS,REG_READ4);
+		ESP_LOGI(IP_TASK_TAG,"Read REG_READ4 : 0x%02X \n", read_reg);
 
 
 
-		  read_reg= i2c_read(IP5306_ADDRESS,SYS_CTL0);
 
-		ESP_LOGI(IP_TASK_TAG,"Read SYS_CTL0 : %d \n", read_reg);
 		ESP_LOGI(IP_TASK_TAG,"Battery Level : %d \n", Battery_Level());
 
 		vTaskDelay(DELAY_MS/portTICK_PERIOD_MS);
