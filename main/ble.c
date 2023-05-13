@@ -188,6 +188,7 @@ static const uint16_t GATTS_SERVICE_UUID_TEST      = ESP_GATT_UUID_BATTERY_SERVI
 static const uint16_t GATTS_CHAR_UUID_TEST_A       = 0x2B18;
 static const uint16_t GATTS_CHAR_UUID_TEST_B       = 0x2A19;
 static const uint16_t GATTS_CHAR_UUID_TEST_C       = 0x2A06;
+static const uint16_t GATTS_CHAR_UUID_TEST_D       = 0x2A1B;
 
 static const uint16_t primary_service_uuid         = ESP_GATT_UUID_PRI_SERVICE;
 static const uint16_t character_declaration_uuid   = ESP_GATT_UUID_CHAR_DECLARE;
@@ -254,6 +255,16 @@ static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] =
     [IDX_CHAR_VAL_C]  =
     {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&GATTS_CHAR_UUID_TEST_C, ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
       GATTS_DEMO_CHAR_VAL_LEN_MAX, sizeof(char_value), (uint8_t *)char_value}},
+
+	/*DDDD Characteristic Declaration */
+	[IDX_CHAR_D]      =
+	{{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ,
+	  CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_write}},
+
+	/* Characteristic Value */
+	[IDX_CHAR_VAL_D]  =
+	{{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&GATTS_CHAR_UUID_TEST_D, ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
+	  GATTS_DEMO_CHAR_VAL_LEN_MAX, sizeof(char_value), (uint8_t *)char_value}},
 
 };
 
@@ -631,7 +642,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
           					}
 
           					//esp_ble_gatts_send_indicate(heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if,  heart_rate_profile_tab[PROFILE_APP_IDX].conn_id, heart_rate_profile_tab[PROFILE_APP_IDX].char_handle, sizeof(notify_data), notify_data, false);
-                            esp_ble_gatts_send_indicate(heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if,  heart_rate_profile_tab[PROFILE_APP_IDX].conn_id, heart_rate_handle_table[IDX_CHAR_VAL_A],
+                            esp_ble_gatts_send_indicate(heart_rate_profile_tab[PROFILE_APP_IDX].gatts_if,
+                            		                    heart_rate_profile_tab[PROFILE_APP_IDX].conn_id, heart_rate_handle_table[IDX_CHAR_VAL_A],
                                                     sizeof(notify_data), notify_data, false);
 
           					BatVoltage_old = BatVoltage;

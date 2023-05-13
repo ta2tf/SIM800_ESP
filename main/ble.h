@@ -28,6 +28,9 @@ enum
     IDX_CHAR_C,
     IDX_CHAR_VAL_C,
 
+    IDX_CHAR_D,
+    IDX_CHAR_VAL_D,
+
     HRS_IDX_NB,
 };
 
