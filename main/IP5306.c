@@ -22,7 +22,7 @@
 
 static const char *TAG = "IP5306";
 
-
+extern QueueHandle_t BatteryQueue;
 
 
 /******************************************************************
@@ -550,7 +550,7 @@ void IP5306_Read_task()
 {
 
 	  uint8_t read_reg=0;
-
+	  int batterylevel;
 
 
     //set battery voltage
@@ -627,8 +627,10 @@ void IP5306_Read_task()
 
 
 
+        batterylevel = (int) Battery_Level();
+		ESP_LOGI(IP_TASK_TAG,"Battery Level : %d \n", batterylevel);
 
-		ESP_LOGI(IP_TASK_TAG,"Battery Level : %d \n", Battery_Level());
+		 xQueueSend(BatteryQueue, &batterylevel, NULL);
 
 		vTaskDelay(DELAY_MS/portTICK_PERIOD_MS);
 	}
