@@ -61,7 +61,7 @@ int BatVoltage_old;
 #define PROFILE_NUM                 1
 #define PROFILE_APP_IDX             0
 #define ESP_APP_ID                  0x55
-#define SAMPLE_DEVICE_NAME          "ESP_GATTS_DEMO"
+#define SAMPLE_DEVICE_NAME          "SYA_TA2YF_TEST"
 #define SVC_INST_ID                 0
 
 /* The max length of characteristic value. When the GATT client performs a write or prepare write operation,
@@ -95,7 +95,7 @@ static uint8_t raw_adv_data[] = {
         /* service uuid */
         0x03, 0x03, 0xFF, 0x00,
         /* device name */
-        0x0f, 0x09, 'E', 'S', 'P', '_', 'G', 'A', 'T', 'T', 'S', '_', 'D','E', 'M', 'O'
+        0x0f, 0x09, 'S', 'Y', 'A', '_', 'D', 'E', 'V', 'I', 'C', 'E', '_','V', '0', '1'
 };
 static uint8_t raw_scan_rsp_data[] = {
         /* flags */
