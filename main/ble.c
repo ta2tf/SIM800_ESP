@@ -737,6 +737,8 @@ static void gatts_profile_b_event_handler(esp_gatts_cb_event_t event, esp_gatt_i
                                      ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
                                      NULL, NULL);
 
+
+
         break;
     case ESP_GATTS_ADD_CHAR_DESCR_EVT: // When add descriptor complete, the event comes
         gl_profile_tab[PROFILE_B_APP_ID].descr_handle = param->add_char_descr.attr_handle;
