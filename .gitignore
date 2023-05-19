@@ -1,1 +1,5 @@
 /build
+*.bak
+main/client.crt
+main/client.key
+main/mosquitto.org.crt

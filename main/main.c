@@ -35,7 +35,7 @@
 #include "led.h"
 #include "IP5306.h"
 #include "battery.h"
-
+#include "aws.h"
 
 static const char *TAG = "MAIN";
 
@@ -71,7 +71,10 @@ void app_main(void)
 
     IP5306_test();
     bat_Init();
-
+     
+	aws_main();
+	
+	
     while (1)
      {
 
