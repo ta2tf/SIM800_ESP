@@ -3,3 +3,4 @@
 main/client.crt
 main/client.key
 main/mosquitto.org.crt
+main/awsrootca.crt

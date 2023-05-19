@@ -10,4 +10,4 @@ project(gatt_server_service_table_demo)
 
 target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/client.crt" TEXT)
 target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/client.key" TEXT)
-target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/mosquitto.org.crt" TEXT)
+target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/awsrootca.crt" TEXT)

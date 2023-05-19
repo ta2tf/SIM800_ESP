@@ -156,15 +156,6 @@ int GSM_SendData(const char* logName, const char* data)
     GSM_SendData(TX_TASK_TAG, "AT+CMIC=0,15\r\n");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    GSM_SendData(TX_TASK_TAG, "AT+CMIC=1,15\r\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    GSM_SendData(TX_TASK_TAG, "AT+CMIC=2,15\r\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    GSM_SendData(TX_TASK_TAG, "AT+CMIC=3,15\r\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
 
     GSM_SendData(TX_TASK_TAG, "AT+CEXTERNTONE=0\r\n");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
