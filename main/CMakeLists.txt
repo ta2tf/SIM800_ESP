@@ -1,4 +1,4 @@
-set(COMPONENT_SRCS "main.c" "gsm.c" "ble.c" "led.c" "IP5306.c" "battery.c" "aws.c")
+set(COMPONENT_SRCS "main.c" "gsm.c" "ble.c" "led.c" "IP5306.c" "battery.c" "aws.c" "httpsota.c")
 set(COMPONENT_ADD_INCLUDEDIRS ".")
 
 

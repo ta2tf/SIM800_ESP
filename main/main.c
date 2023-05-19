@@ -36,6 +36,7 @@
 #include "IP5306.h"
 #include "battery.h"
 #include "aws.h"
+#include "httpsota.h"
 
 static const char *TAG = "MAIN";
 
@@ -66,13 +67,15 @@ void app_main(void)
 
 
     LED_Init();
-    BLE_Init();
-    GSM_Init();
+  //  BLE_Init();
+  //  GSM_Init();
 
-    IP5306_test();
-    bat_Init();
-     
-	aws_main();
+  //  IP5306_test();
+  //  bat_Init();
+
+    ota_app();
+
+    //aws_main();
 	
 	
     while (1)
