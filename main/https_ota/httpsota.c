@@ -28,6 +28,126 @@ xSemaphoreHandle ota_semaphore;
 
 extern const uint8_t server_cert_pem_start[] asm("_binary_google_crt_start");
 
+
+
+//==========================================================================================
+// validateVersion
+//==========================================================================================
+esp_err_t validateVersion(char *inversion)
+{
+
+	char version[32];
+	char Family[2];
+	char Major[2];
+	char Minor[2];
+	char Release[2];
+
+
+	// 01234567890
+	// 00.00.00.00
+	memcpy(version,inversion,32);
+
+	memcpy(Family, &version[0],2);
+	memcpy(Major,  &version[3],2);
+	memcpy(Minor,  &version[6],2);
+	memcpy(Release,&version[9],2);
+
+	ESP_LOGI(TAG, " Family is %s", Family);
+	ESP_LOGI(TAG, " Major is %s", Major);
+	ESP_LOGI(TAG, " Minor is %s", Minor);
+	ESP_LOGI(TAG, " Release is %s", Release);
+
+   return ESP_OK;
+}
+
+
+//==========================================================================================
+// validate_image_header
+//==========================================================================================
+esp_err_t validate_image_header2(esp_app_desc_t *incoming_ota_desc)
+{
+  const esp_partition_t *running_partition = esp_ota_get_running_partition();
+  esp_app_desc_t running_partition_description;
+  esp_ota_get_partition_description(running_partition, &running_partition_description);
+
+  ESP_LOGI(TAG, "current version is %s", running_partition_description.version);
+
+
+
+  ESP_LOGI(TAG, "new version is     %s", incoming_ota_desc->version);
+  ESP_LOGI(TAG, "new version date   %s", incoming_ota_desc->date);
+  ESP_LOGI(TAG, "new version name   %s", incoming_ota_desc->project_name);
+  ESP_LOGI(TAG, "new version time    %s", incoming_ota_desc->time);
+
+
+  if (strcmp(running_partition_description.version, incoming_ota_desc->version) == 0)
+  {
+    ESP_LOGW(TAG, "NEW VERSION IS THE SAME AS CURRENT VERSION. ABORTING");
+    return ESP_FAIL;
+  }
+  else
+  {
+
+	  return ESP_OK;
+  }
+  return ESP_OK;
+}
+
+
+
+//==========================================================================================
+// DumpPartition
+//==========================================================================================
+void DumpPartition()
+{
+  const esp_partition_t *running_partition = esp_ota_get_running_partition();
+  const esp_partition_t *boot_partition    = esp_ota_get_boot_partition();
+
+  printf("\nRunning partition: %s\n", running_partition->label);
+  printf("Boot    partition: %s\n", boot_partition->label);
+  printf("Total Partition Count is: %d\n", esp_ota_get_app_partition_count()+1);
+
+
+   const esp_partition_t *factory_partition;
+   const esp_partition_t *ota0_partition;
+   const esp_partition_t *ota1_partition;
+
+   esp_app_desc_t         partition_description;
+
+
+   factory_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY  , "factory");
+   esp_ota_get_partition_description(factory_partition, &partition_description);
+
+   printf("\nfactory partition: %s\n", factory_partition->label);
+   printf("factory firmware version is: %s\n", partition_description.version);
+   printf("factory firmware project_name is: %s\n", partition_description.project_name);
+
+   validateVersion(partition_description.version);
+
+
+   ota0_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY  , "ota_0");
+   esp_ota_get_partition_description(ota0_partition, &partition_description);
+
+   printf("\nOTA 0 partition: %s\n", ota0_partition->label);
+   printf("OTA 0 firmware version is: %s\n", partition_description.version);
+   printf("OTA 0 firmware project_name is: %s\n", partition_description.project_name);
+
+
+   ota1_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY  , "ota_1");
+   esp_ota_get_partition_description(ota1_partition, &partition_description);
+
+   printf("\nOTA 1 partition: %s\n", ota1_partition->label);
+   printf("OTA 1 firmware version is: %s\n",  partition_description.version);
+   printf("OTA 1 firmware project_name is: %s\n",  partition_description.project_name);
+
+
+   //esp_ota_set_boot_partition(ota1_partition);
+   }
+
+
+
+
+
 esp_err_t client_event_handler(esp_http_client_event_t *evt)
 {
   return ESP_OK;
@@ -68,7 +188,11 @@ void run_ota(void *params)
     esp_http_client_config_t clientConfig = {
         .url = "https://drive.google.com/u/0/uc?id=19lcX5Bgy4qlicdO1WXenlflAlzlAHl0Z&export=download", // our ota location
         .event_handler = client_event_handler,
-        .cert_pem = (char *)server_cert_pem_start};
+        .cert_pem = (char *)server_cert_pem_start,
+		 .timeout_ms = 5000
+    };
+
+
 
     esp_https_ota_config_t ota_config = {
         .http_config = &clientConfig};
@@ -145,6 +269,8 @@ void ota_app(void)
   gpio_config(&gpioConfig);
   gpio_install_isr_service(0);
   gpio_isr_handler_add(GPIO_NUM_36, on_button_pushed, NULL);
+
+  DumpPartition();
 
   ota_semaphore = xSemaphoreCreateBinary();
   xTaskCreate(run_ota, "run_ota", 1024 * 8, NULL, 2, NULL);
