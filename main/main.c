@@ -37,6 +37,8 @@
 #include "battery.h"
 #include "aws.h"
 #include "httpsota.h"
+#include "wifi_sta.h"
+
 
 static const char *TAG = "MAIN";
 
@@ -65,19 +67,20 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( ret );
 
+    Wifi_Station();
 
     LED_Init();
-  //  BLE_Init();
-  //  GSM_Init();
+   //  BLE_Init();
+   //  GSM_Init();
 
-  //  IP5306_test();
-  //  bat_Init();
+   //  IP5306_test();
+   //  bat_Init();
 
-    ota_app();
+   // ota_app();
 
-   // aws_main();
+    aws_main();
 	
-	
+   //   Wifi_Station();
     while (1)
      {
 

@@ -8,6 +8,9 @@
 #ifndef MAIN_HTTPSOTA_H_
 #define MAIN_HTTPSOTA_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void ota_app(void);
 

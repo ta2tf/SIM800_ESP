@@ -34,6 +34,7 @@
 
 
 
+
 static const char *TAG = "MQTTS_EXAMPLE";
 
 extern const uint8_t client_cert_pem_start[] asm("_binary_client_crt_start");
@@ -147,14 +148,8 @@ void aws_main(void)
     esp_log_level_set("OUTBOX", ESP_LOG_INFO);
 
     ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
-    ESP_ERROR_CHECK(example_connect());
+
 
     mqtt_app_start();
 }
