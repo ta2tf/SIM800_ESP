@@ -59,7 +59,7 @@ static uint8_t s_led_state = 0;
 
     	blink_led();
     	s_led_state = !s_led_state;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 

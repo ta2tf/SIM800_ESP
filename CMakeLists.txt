@@ -11,5 +11,6 @@ project(gatt_server_service_table_demo)
 target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/aws/client.crt" TEXT)
 target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/aws/client.key" TEXT)
 target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/aws/awsrootca.crt" TEXT)
+target_add_binary_data(${CMAKE_PROJECT_NAME}.elf "main/https_ota/google.crt" TEXT)
 
-set(COMPONENT_EMBED_TXTFILES "../certgoogle/google.crt")
+ 

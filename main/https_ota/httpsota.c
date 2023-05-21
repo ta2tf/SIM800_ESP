@@ -23,7 +23,7 @@
 #include "httpsota.h"
 
 
-#define TAG "OTA"
+#define TAG "O T A"
 SemaphoreHandle_t ota_semaphore;
 
 const int software_version = 1;
@@ -38,6 +38,7 @@ void run_ota(void *params)
 {
   while (true)
   {
+	   ESP_LOGI(TAG, "wait OTA");
     xSemaphoreTake(ota_semaphore, portMAX_DELAY);
     ESP_LOGI(TAG, "Invoking OTA");
 
@@ -72,17 +73,17 @@ void on_button_pushed(void *params)
 
 void ota_app(void)
 {
-  printf("HAY!!! This is a new feature\n");
+  printf("OLAAA HAY!!! This is a new feature\n");
   ESP_LOGI("SOFTWARE VERSION", "we are running %d",software_version);
   gpio_config_t gpioConfig = {
-      .pin_bit_mask = 1ULL << GPIO_NUM_23,
+      .pin_bit_mask = 1ULL << GPIO_NUM_36,
       .mode = GPIO_MODE_INPUT,
       .pull_up_en = GPIO_PULLUP_ENABLE,
       .pull_down_en = GPIO_PULLUP_DISABLE,
       .intr_type = GPIO_INTR_NEGEDGE};
   gpio_config(&gpioConfig);
   gpio_install_isr_service(0);
-  gpio_isr_handler_add(GPIO_NUM_0, on_button_pushed, NULL);
+  gpio_isr_handler_add(GPIO_NUM_36, on_button_pushed, NULL);
 
   ota_semaphore = xSemaphoreCreateBinary();
   xTaskCreate(run_ota, "run_ota", 1024 * 8, NULL, 2, NULL);

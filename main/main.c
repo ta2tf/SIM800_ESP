@@ -73,9 +73,9 @@ void app_main(void)
   //  IP5306_test();
   //  bat_Init();
 
- //   ota_app();
+    ota_app();
 
-    aws_main();
+   // aws_main();
 	
 	
     while (1)
