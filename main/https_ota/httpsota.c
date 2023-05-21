@@ -102,6 +102,7 @@ void run_ota(void *params)
     while (true)
     {
       esp_err_t ota_result = esp_https_ota_perform(ota_handle);
+      printf(".");
       if (ota_result != ESP_ERR_HTTPS_OTA_IN_PROGRESS)
         break;
     }
