@@ -148,10 +148,48 @@ void DumpPartition()
 
 
 
+//esp_err_t client_event_handler(esp_http_client_event_t *evt)
+//{
+//  return ESP_OK;
+//}
+
 esp_err_t client_event_handler(esp_http_client_event_t *evt)
 {
-  return ESP_OK;
+    static char *output_buffer;  // Buffer to store response of http request from event handler
+    static int output_len;       // Stores number of bytes read
+
+#define TAG "OTA HTTPS"
+
+    switch(evt->event_id) {
+        case HTTP_EVENT_ERROR:
+            ESP_LOGI(TAG, "HTTP_EVENT_ERROR");
+            break;
+        case HTTP_EVENT_ON_CONNECTED:
+        	ESP_LOGI(TAG, "HTTP_EVENT_ON_CONNECTED");
+            break;
+        case HTTP_EVENT_HEADER_SENT:
+        	ESP_LOGI(TAG, "HTTP_EVENT_HEADER_SENT");
+            break;
+        case HTTP_EVENT_ON_HEADER:
+        	ESP_LOGI(TAG, "HTTP_EVENT_ON_HEADER");
+            break;
+        case HTTP_EVENT_ON_DATA:
+        	ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA");
+            break;
+        case HTTP_EVENT_ON_FINISH:
+        	ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
+            break;
+        case HTTP_EVENT_DISCONNECTED:
+            ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+
+            break;
+        case HTTP_EVENT_REDIRECT:
+        	 ESP_LOGI(TAG, "HTTP_EVENT_REDIRECT");
+            break;
+    }
+    return ESP_OK;
 }
+
 
 esp_err_t validate_image_header(esp_app_desc_t *incoming_ota_desc)
 {
