@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
 
-set(PROJECT_VER "01.01.0.00")
+set(PROJECT_VER "01.01.0.03")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(gatt_server_service_table_demo)
