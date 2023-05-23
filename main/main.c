@@ -54,7 +54,7 @@ void app_main(void)
 
 	esp_log_level_set(TAG, ESP_LOG_INFO);
 
-    ESP_LOGI(TAG, "[APP] Startup..");
+    ESP_LOGI(TAG, "[APP] Startup.....");
     ESP_LOGI(TAG, "[APP] Free memory: %d bytes", (int) esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
@@ -70,16 +70,16 @@ void app_main(void)
    // Wifi_Station();
 
     LED_Init();
-   //  BLE_Init();
-   //  GSM_Init();
+     BLE_Init();
+      GSM_Init();
 
-   //  IP5306_test();
-   //  bat_Init();
+     IP5306_test();
+     bat_Init();
 
+
+
+  //   aws_main();
      ota_app();
-
-   // aws_main();
-	
 
     while (1)
      {
