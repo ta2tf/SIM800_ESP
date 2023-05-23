@@ -36,11 +36,18 @@ extern const uint8_t server_cert_pem_start[] asm("_binary_google_crt_start");
 esp_err_t validateVersion(char *inversion)
 {
 
-	char version[32];
-	char Family[2];
-	char Major[2];
-	char Minor[2];
-	char Release[2];
+	char version[32+1];
+	char Family[2+1];
+	char Major[2+1];
+	char Minor[2+1];
+	char Release[2+1];
+
+
+	memset(version,0,sizeof(version));
+	memset(Family,0,sizeof(Family));
+	memset(Major,0,sizeof(Major));
+	memset(Minor,0,sizeof(Minor));
+	memset(Release,0,sizeof(Release));
 
 
 	// 01234567890
