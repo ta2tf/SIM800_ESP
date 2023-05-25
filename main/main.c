@@ -70,16 +70,18 @@ void app_main(void)
    // Wifi_Station();
 
     LED_Init();
-     BLE_Init();
-      GSM_Init();
+  //   BLE_Init();
+   //   GSM_Init();
 
-     IP5306_test();
-     bat_Init();
+   //  IP5306_test();
+   //  bat_Init();
 
 
 
   //   aws_main();
-     ota_app();
+  //   ota_app();
+
+    Wifi_Station();
 
     while (1)
      {

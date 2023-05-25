@@ -13,7 +13,7 @@
 //#define CONFIG_ESP_WIFI_PASSWORD   "narnia1523"
 
 #define CONFIG_ESP_WIFI_SSID       "Mertech_2_4"
-#define CONFIG_ESP_WIFI_PASSWORD   "Mer0TecH_2"
+#define CONFIG_ESP_WIFI_PASSWORD   "MeR0TecH_2"
 
 #define CONFIG_ESP_MAXIMUM_RETRY   5
 
