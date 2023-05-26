@@ -39,8 +39,40 @@
 #include "httpsota.h"
 #include "wifi_sta.h"
 
+#include "server.h"
+#include "connect.h"
+
 
 static const char *TAG = "MAIN";
+
+
+xSemaphoreHandle connectionSemaphore;
+xSemaphoreHandle initSemaphore;
+
+void OnConnected(void *para)
+{
+  while (true)
+  {
+    if (xSemaphoreTake(connectionSemaphore, portMAX_DELAY))
+    {
+      RegisterEndPoints();
+    }
+  }
+}
+
+
+void test_main()
+{
+  esp_log_level_set(TAG, ESP_LOG_DEBUG);
+  connectionSemaphore = xSemaphoreCreateBinary();
+  initSemaphore = xSemaphoreCreateBinary();
+  xTaskCreate(&wifiInit, "init comms", 1024 * 3, NULL, 10, NULL);
+  xSemaphoreGive(initSemaphore);
+  xTaskCreate(&OnConnected, "handel comms", 1024 * 5, NULL, 5, NULL);
+
+}
+
+
 
 //==========================================================================================================
 //==========================================================================================================
@@ -67,6 +99,11 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( ret );
 
+
+
+
+
+
    // Wifi_Station();
 
     LED_Init();
@@ -81,7 +118,7 @@ void app_main(void)
   //   aws_main();
   //   ota_app();
 
-    Wifi_Station();
+  //  Wifi_Station();
 
     while (1)
      {
