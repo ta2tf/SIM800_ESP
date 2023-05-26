@@ -11,7 +11,8 @@
 #include "connect.h"
 
 
-
+#include "lwip/err.h"
+#include "lwip/sys.h"
 
 
 #define SSID CONFIG_WIFI_SSID
@@ -78,8 +79,13 @@ void wifiInit(void *params)
 {
   ESP_ERROR_CHECK(nvs_flash_init());
   // **** these 2 lines have moved from within the while loop to here. Its better here to ensure it only initializes once
-  tcpip_adapter_init();
-  ESP_ERROR_CHECK(esp_event_loop_create(event_handler, NULL));
+  //tcpip_adapter_init();
+
+  esp_netif_init();
+
+  //ESP_ERROR_CHECK(esp_event_loop_create(event_handler, NULL));
+
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
 
 
   while (true)

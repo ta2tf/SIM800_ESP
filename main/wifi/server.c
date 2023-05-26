@@ -4,7 +4,6 @@
 #include "esp_http_server.h"
 #include "cJSON.h"
 #include "driver/gpio.h"
-#include "lm75a.h"
 #include "esp_spiffs.h"
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -57,7 +56,7 @@ static esp_err_t on_url_hit(httpd_req_t *req)
 static esp_err_t on_get_temperature(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "url %s was hit", req->uri);
-    float temperature = readTemperature();
+    float temperature = 23.3f;
     char message[100];
     sprintf(message, "{\"temperature\":%f}", temperature);
     httpd_resp_send(req, message, strlen(message));
@@ -110,6 +109,8 @@ static esp_err_t on_led_set(httpd_req_t *req)
     cJSON *payload = cJSON_Parse(buf);
     cJSON *isLedOn = cJSON_GetObjectItem(payload, "isLedOn");
     gpio_set_level(LED, cJSON_IsTrue(isLedOn));
+
+
     cJSON_Delete(payload);
     httpd_resp_set_status(req, "204 NO CONTENT");
     httpd_resp_send(req, NULL, 0);
@@ -118,7 +119,7 @@ static esp_err_t on_led_set(httpd_req_t *req)
 
 void InitializeLed()
 {
-    gpio_pad_select_gpio(LED);
+
     gpio_set_direction(LED, GPIO_MODE_OUTPUT);
 }
 
