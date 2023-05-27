@@ -37,43 +37,16 @@
 #include "battery.h"
 #include "aws.h"
 #include "httpsota.h"
-#include "wifi_sta.h"
+#include "wifi_connect.h"
 
-#include "server.h"
-#include "connect.h"
+
 
 
 static const char *TAG = "MAIN";
 
 
-xSemaphoreHandle connectionSemaphore;
-xSemaphoreHandle initSemaphore;
-
-void OnConnected(void *para)
-{
-  while (true)
-  {
-    if (xSemaphoreTake(connectionSemaphore, portMAX_DELAY))
-    {
-      RegisterEndPoints();
-    }
-  }
-}
 
 
-void test_main()
-{
-  esp_log_level_set(TAG, ESP_LOG_DEBUG);
-  connectionSemaphore = xSemaphoreCreateBinary();
-  initSemaphore = xSemaphoreCreateBinary();
-
-  xSemaphoreGive(initSemaphore);
-
-  xTaskCreate(&wifiInit, "init comms", 1024 * 3, NULL, 10, NULL);
-
-//  xTaskCreate(&OnConnected, "handel comms", 1024 * 5, NULL, 5, NULL);
-
-}
 
 
 
@@ -102,12 +75,21 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( ret );
 
+    //    char issid[32];
+    //    char ipass[32];
+    //
+    //    sprintf(issid,"%s","MERLIN");
+    //    sprintf(ipass,"%s","narnia1523");
+    //
+    //    nvs_flash_init();
+    //    nvs_handle_t nvs;
+    //    nvs_open("wifiCreds", NVS_READWRITE, &nvs);
+    //    nvs_set_str(nvs, "ssid", issid);
+    //    nvs_set_str(nvs, "pass", ipass);
+    //    nvs_close(nvs);
 
-    test_main();
 
 
-
-   // Wifi_Station();
 
     LED_Init();
   //   BLE_Init();
@@ -118,10 +100,12 @@ void app_main(void)
 
 
 
-  //   aws_main();
-  //   ota_app();
+     //example_wifi_connect();
 
-  //  Wifi_Station();
+
+     ota_app();
+
+   //  aws_main();
 
     while (1)
      {

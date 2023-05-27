@@ -20,9 +20,9 @@
 #include "protocol_examples_common.h"
 
 #include "esp_ota_ops.h"
+#include "wifi_connect.h"
 
-
-#define TAG "OTA"
+#define TAG "O T A"
 xSemaphoreHandle ota_semaphore;
 
 
@@ -84,7 +84,7 @@ esp_err_t validate_image_header2(esp_app_desc_t *incoming_ota_desc)
   ESP_LOGI(TAG, "new version is     %s", incoming_ota_desc->version);
   ESP_LOGI(TAG, "new version date   %s", incoming_ota_desc->date);
   ESP_LOGI(TAG, "new version name   %s", incoming_ota_desc->project_name);
-  ESP_LOGI(TAG, "new version time    %s", incoming_ota_desc->time);
+  ESP_LOGI(TAG, "new version time   %s", incoming_ota_desc->time);
 
 
   if (strcmp(running_partition_description.version, incoming_ota_desc->version) == 0)
@@ -228,13 +228,14 @@ void run_ota(void *params)
     xSemaphoreTake(ota_semaphore, portMAX_DELAY);
     ESP_LOGI(TAG, "Invoking OTA");
 
-    ESP_ERROR_CHECK(example_connect());
+
+    example_wifi_connect();
 
     esp_http_client_config_t clientConfig = {
         .url = "https://drive.google.com/u/0/uc?id=19lcX5Bgy4qlicdO1WXenlflAlzlAHl0Z&export=download", // our ota location
         .event_handler = client_event_handler,
         .cert_pem = (char *)server_cert_pem_start,
-		 .timeout_ms = 5000
+		.timeout_ms = 5000
     };
 
 
@@ -271,7 +272,7 @@ void run_ota(void *params)
     while (true)
     {
       esp_err_t ota_result = esp_https_ota_perform(ota_handle);
-      printf(".");
+
       if (ota_result != ESP_ERR_HTTPS_OTA_IN_PROGRESS)
         break;
     }
@@ -292,10 +293,12 @@ void run_ota(void *params)
   }
 }
 
+
 void on_button_pushed(void *params)
 {
   xSemaphoreGiveFromISR(ota_semaphore, pdFALSE);
 }
+
 
 void ota_app(void)
 {

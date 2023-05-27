@@ -33,7 +33,7 @@
 #include "aws.h"
 
 
-
+extern SemaphoreHandle_t s_semph_get_ip_addrs;
 
 static const char *TAG = "MQTTS_EXAMPLE";
 
@@ -150,6 +150,8 @@ void aws_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
 
 
-
+    if (s_semph_get_ip_addrs) {
+         xSemaphoreTake(s_semph_get_ip_addrs,500000);
     mqtt_app_start();
+    }
 }
