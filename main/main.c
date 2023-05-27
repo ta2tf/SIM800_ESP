@@ -66,9 +66,12 @@ void test_main()
   esp_log_level_set(TAG, ESP_LOG_DEBUG);
   connectionSemaphore = xSemaphoreCreateBinary();
   initSemaphore = xSemaphoreCreateBinary();
-  xTaskCreate(&wifiInit, "init comms", 1024 * 3, NULL, 10, NULL);
+
   xSemaphoreGive(initSemaphore);
-  xTaskCreate(&OnConnected, "handel comms", 1024 * 5, NULL, 5, NULL);
+
+  xTaskCreate(&wifiInit, "init comms", 1024 * 3, NULL, 10, NULL);
+
+//  xTaskCreate(&OnConnected, "handel comms", 1024 * 5, NULL, 5, NULL);
 
 }
 
