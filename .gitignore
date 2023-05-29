@@ -1,7 +1,4 @@
 /build
 *.bak
-main/client.crt
-main/client.key
-main/mosquitto.org.crt
-main/awsrootca.crt
+/main/aws 
 .vscode/settings.json
