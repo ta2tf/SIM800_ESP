@@ -20,9 +20,22 @@
 * cd .\build\
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate  "C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\nvs.csv" certs.bin 16384
 
+python C:\Espressif\frameworks\esp-idf-v5.0.1-3\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate  "C:\Espressif\frameworks\esp-idf-v5.0.1-3\workspace\SIM800_ESP\nvs.csv" certs.bin 16384
+
+
 Creating NVS binary with version: V2 - Multipage Blob Support Enabled
 Created NVS binary: ===> C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\build\certs.bin
 
+
+# ESP-IDF Partition Table
+# Name, Type, SubType, Offset, Size, Flags
+nvs,data,nvs,0x9000,16K,
+otadata,data,ota,0xd000,8K,
+phy_init,data,phy,0xf000,4K,
+spiffs,data,spiffs,0x10000,1M,
+factory,app,factory,0x400000,4M,
+ota_0,app,ota_0,0x800000,4M,
+ota_1,app,ota_1,0xc00000,4M,
 *
 ****************************************************************************/
 
@@ -31,7 +44,7 @@ Created NVS binary: ===> C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM80
 #include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
+#include "freertos/event_groups.h"cd
 #include "freertos/queue.h"
 #include "esp_system.h"
 #include "esp_log.h"
@@ -56,74 +69,6 @@ Created NVS binary: ===> C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM80
 static const char *TAG = "MAIN";
 
 
-
-
-
-char * nvs_load_value_if_exist(nvs_handle handle, const char* key)
-{
-	static const char TAG[] = "NVS-Test";
-
-    // Try to get the size of the item
-    size_t value_size;
-    if(nvs_get_str(handle, key, NULL, &value_size) != ESP_OK){
-        ESP_LOGE(TAG, "Failed to get size of key: %s", key);
-        return NULL;
-    }
-
-    char* value = malloc(value_size);
-    if(nvs_get_str(handle, key, value, &value_size) != ESP_OK){
-        ESP_LOGE(TAG, "Failed to load key: %s", key);
-        return NULL;
-    }
-
-    return value;
-}
-
-void NVS_app_main(void)
-{
-	static const char TAG[] = "NVS-Test";
-
-	char logg[128];
-
-    // Initialize NVS
-    ESP_LOGI(TAG, "test start  NVS");
-
-    // Open the "certs" namespace in read-only mode
-    nvs_handle handle;
-    ESP_ERROR_CHECK( nvs_open("certs", NVS_READONLY, &handle));
-
-    // Load the private key & certificate
-    ESP_LOGI(TAG, "Loading private key & certificate");
-    char * private_key = nvs_load_value_if_exist(handle, "priv_key");
-    char * certificate = nvs_load_value_if_exist(handle, "certificate");
-
-    // We're done with NVS
-    nvs_close(handle);
-
-
-    // Check if both items have been correctly retrieved
-    if(private_key == NULL || certificate == NULL){
-        ESP_LOGE(TAG, "Private key or cert could not be loaded");
-        return; // You might want to handle this in a better way
-    }
-    else
-    	ESP_LOGE(TAG, "Private key or cert  be loaded");
-
-
-    memset(logg,0,sizeof(logg));
-    memcpy(logg,private_key,32);
-    ESP_LOGI(TAG, "private_key NVS %s", logg);
-
-    memset(logg,0,sizeof(logg));
-    memcpy(logg,certificate,32);
-    ESP_LOGI(TAG, "certificate NVS %s", logg);
-
-    ESP_LOGI(TAG, "test stop  NVS");
-
-
-
-
-}
 
 //==========================================================================================================
 //==========================================================================================================
@@ -150,21 +95,18 @@ void app_main(void)
     }
     ESP_ERROR_CHECK( ret );
 
-    //    char issid[32];
-    //    char ipass[32];
-    //
-    //    sprintf(issid,"%s","MERLIN");
-    //    sprintf(ipass,"%s","narnia1523");
-    //
-    //    nvs_flash_init();
-    //    nvs_handle_t nvs;
-    //    nvs_open("wifiCreds", NVS_READWRITE, &nvs);
-    //    nvs_set_str(nvs, "ssid", issid);
-    //    nvs_set_str(nvs, "pass", ipass);
-    //    nvs_close(nvs);
+        char issid[32];
+        char ipass[32];
 
+        sprintf(issid,"%s","MERLIN");
+        sprintf(ipass,"%s","narnia1523");
 
-    NVS_app_main();
+        nvs_flash_init();
+        nvs_handle_t nvs;
+        nvs_open("wifiCreds", NVS_READWRITE, &nvs);
+        nvs_set_str(nvs, "ssid", issid);
+        nvs_set_str(nvs, "pass", ipass);
+        nvs_close(nvs);
 
 
     LED_Init();
@@ -177,13 +119,12 @@ void app_main(void)
    //  bat_Init();
 
 
-
-     //example_wifi_connect();
+    example_wifi_connect();
 
 
    //  ota_app();
 
-   //  aws_main();
+    aws_main();
 
     while (1)
      {

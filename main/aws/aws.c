@@ -13,6 +13,7 @@
 #include <inttypes.h>
 #include "esp_wifi.h"
 #include "esp_system.h"
+#include "nvs.h"
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
@@ -39,10 +40,106 @@ static const char *TAG = "MQTTS_EXAMPLE";
 
 extern const uint8_t client_cert_pem_start[] asm("_binary_client_crt_start");
 extern const uint8_t client_cert_pem_end[] asm("_binary_client_crt_end");
+
 extern const uint8_t client_key_pem_start[] asm("_binary_client_key_start");
 extern const uint8_t client_key_pem_end[] asm("_binary_client_key_end");
+
 extern const uint8_t server_cert_pem_start[] asm("_binary_awsrootca_crt_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_awsrootca_crt_end");
+
+
+
+char * private_crt;
+char * private_key;
+char * certificate;
+
+size_t value_size_private_crt;
+size_t value_size_private_key;
+size_t value_size_certificate;
+
+
+
+char * nvs_load_value_if_exist(nvs_handle handle, const char* key, size_t *value_size )
+{
+	static const char TAG[] = "NVS-Test";
+
+    // Try to get the size of the item
+
+    if(nvs_get_str(handle, key, NULL, value_size) != ESP_OK){
+        ESP_LOGE(TAG, "Failed to get size of key: %s", key);
+        return NULL;
+    }
+
+    char* value = malloc(*value_size);
+    if(nvs_get_str(handle, key, value, value_size) != ESP_OK){
+        ESP_LOGE(TAG, "Failed to load key: %s", key);
+        return NULL;
+    }
+
+    return value;
+}
+
+
+
+void NVS_certificate_get(void)
+{
+	static const char TAG[] = "NVS-GET";
+
+	char logg[128];
+
+    // Initialize NVS
+    ESP_LOGI(TAG, "test start  NVS");
+
+    // Open the "certs" namespace in read-only mode
+    nvs_handle handle;
+    ESP_ERROR_CHECK( nvs_open("certs", NVS_READONLY, &handle));
+
+    // Load the private key & certificate
+    ESP_LOGI(TAG, "Loading private key & certificate");
+
+    ESP_LOGI(TAG, "HEAP FREE SIZE %d",esp_get_free_heap_size());
+
+
+     private_crt = nvs_load_value_if_exist(handle, "priv_crt", &value_size_private_crt);
+     private_key = nvs_load_value_if_exist(handle, "priv_key", &value_size_private_key);
+     certificate = nvs_load_value_if_exist(handle, "certificate", &value_size_certificate);
+
+    // We're done with NVS
+    nvs_close(handle);
+
+    ESP_LOGI(TAG, "HEAP FREE SIZE %d",esp_get_free_heap_size());
+
+    // Check if both items have been correctly retrieved
+    if(private_crt == NULL || private_key == NULL || certificate == NULL){
+        ESP_LOGE(TAG, "Private key or cert could not be loaded");
+        return; // You might want to handle this in a better way
+    }
+    else
+    	ESP_LOGE(TAG, "Private key or cert  be loaded");
+
+    memset(logg,0,sizeof(logg));
+    memcpy(logg,private_crt,32);
+    ESP_LOGI(TAG, "private_crt NVS %d  %s", value_size_private_crt, logg);
+
+    memset(logg,0,sizeof(logg));
+    memcpy(logg,private_key,32);
+    ESP_LOGI(TAG, "private_key NVS %d  %s", value_size_private_key, logg);
+
+    memset(logg,0,sizeof(logg));
+    memcpy(logg,certificate,32);
+    ESP_LOGI(TAG, "certificate NVS  %d  %s", value_size_certificate,  logg);
+
+    ESP_LOGI(TAG, "test stop  NVS");
+
+    free(private_crt);
+    free(private_key);
+    free(certificate);
+
+    ESP_LOGI(TAG, "HEAP FREE SIZE %d",esp_get_free_heap_size());
+
+}
+
+
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -140,6 +237,8 @@ void aws_main(void)
    ESP_LOGI(TAG, "[APP] Startup..");
    ESP_LOGI(TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size());
    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
+
+    NVS_certificate_get();
 
    // esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("MQTT_CLIENT", ESP_LOG_INFO);
