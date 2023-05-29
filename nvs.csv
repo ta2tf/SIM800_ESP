@@ -1,0 +1,5 @@
+key,type,encoding,value
+certs,namespace,,
+certificate,file,string,../main/aws/awsrootca.crt
+priv_crt,file,string,../main/aws/client.crt
+priv_key,file,string,../main/aws/client.key
