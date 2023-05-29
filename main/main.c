@@ -14,6 +14,8 @@
 * add github now
 * add home adition
 *
+*
+*
 * to build cert NVS file
 * cd .\build\
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate  "C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\nvs.csv" certs.bin 16384
