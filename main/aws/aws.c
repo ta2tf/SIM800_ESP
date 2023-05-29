@@ -38,14 +38,15 @@ extern SemaphoreHandle_t s_semph_get_ip_addrs;
 
 static const char *TAG = "MQTTS_EXAMPLE";
 
-extern const uint8_t client_cert_pem_start[] asm("_binary_client_crt_start");
-extern const uint8_t client_cert_pem_end[] asm("_binary_client_crt_end");
-
-extern const uint8_t client_key_pem_start[] asm("_binary_client_key_start");
-extern const uint8_t client_key_pem_end[] asm("_binary_client_key_end");
-
-extern const uint8_t server_cert_pem_start[] asm("_binary_awsrootca_crt_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_awsrootca_crt_end");
+// this is for code embedded certs
+//extern const uint8_t client_cert_pem_start[] asm("_binary_client_crt_start");
+//extern const uint8_t client_cert_pem_end[] asm("_binary_client_crt_end");
+//
+//extern const uint8_t client_key_pem_start[] asm("_binary_client_key_start");
+//extern const uint8_t client_key_pem_end[] asm("_binary_client_key_end");
+//
+//extern const uint8_t server1_cert_pem_start[] asm("_binary_awsrootca_crt_start");
+//extern const uint8_t server1_cert_pem_end[] asm("_binary_awsrootca_crt_end");
 
 
 
@@ -131,9 +132,9 @@ void NVS_certificate_get(void)
 
     ESP_LOGI(TAG, "test stop  NVS");
 
-    free(private_crt);
-    free(private_key);
-    free(certificate);
+//    free(private_crt);
+//    free(private_key);
+//    free(certificate);
 
     ESP_LOGI(TAG, "HEAP FREE SIZE %d",esp_get_free_heap_size());
 
@@ -214,13 +215,27 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 static void mqtt_app_start(void)
 {
+
+// this is for code embedded certs
+//  const esp_mqtt_client_config_t mqtt_cfg = {
+//    .broker.address.uri = "mqtts://asiqb1fo39ypl-ats.iot.eu-central-1.amazonaws.com",
+//    .broker.verification.certificate = (const char *)server1_cert_pem_start,
+//    .credentials = {
+//      .authentication = {
+//        .certificate = (const char *)client_cert_pem_start,
+//        .key = (const char *)client_key_pem_start,
+//      },
+//    }
+//  };
+//
+
   const esp_mqtt_client_config_t mqtt_cfg = {
     .broker.address.uri = "mqtts://asiqb1fo39ypl-ats.iot.eu-central-1.amazonaws.com",
-    .broker.verification.certificate = (const char *)server_cert_pem_start,
+    .broker.verification.certificate = (const char *)certificate,
     .credentials = {
       .authentication = {
-        .certificate = (const char *)client_cert_pem_start,
-        .key = (const char *)client_key_pem_start,
+        .certificate = (const char *)private_crt,
+        .key = (const char *)private_key,
       },
     }
   };
