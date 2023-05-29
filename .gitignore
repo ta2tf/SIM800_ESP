@@ -1,4 +1,7 @@
 /build
 *.bak
-/main/aws 
+main/aws/client.crt
+main/aws/client.key
+main/aws/awsrootca.crt
+main/https_ota/google.crt
 .vscode/settings.json
