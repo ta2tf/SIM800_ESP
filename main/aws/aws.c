@@ -53,11 +53,13 @@ static const char *TAG = "MQTTS_EXAMPLE";
 char * private_crt;
 char * private_key;
 char * certificate;
+char * device_id;
+
 
 size_t value_size_private_crt;
 size_t value_size_private_key;
 size_t value_size_certificate;
-
+size_t value_size_device_id;
 
 
 char * nvs_load_value_if_exist(nvs_handle handle, const char* key, size_t *value_size )
@@ -104,6 +106,9 @@ void NVS_certificate_get(void)
      private_crt = nvs_load_value_if_exist(handle, "priv_crt", &value_size_private_crt);
      private_key = nvs_load_value_if_exist(handle, "priv_key", &value_size_private_key);
      certificate = nvs_load_value_if_exist(handle, "certificate", &value_size_certificate);
+     device_id   = nvs_load_value_if_exist(handle, "dev_id", &value_size_device_id);
+
+
 
     // We're done with NVS
     nvs_close(handle);
@@ -129,6 +134,14 @@ void NVS_certificate_get(void)
     memset(logg,0,sizeof(logg));
     memcpy(logg,certificate,32);
     ESP_LOGI(TAG, "certificate NVS  %d  %s", value_size_certificate,  logg);
+
+
+    memset(logg,0,sizeof(logg));
+    memcpy(logg,device_id,value_size_device_id);
+    ESP_LOGI(TAG, "device_id NVS %d  %s", value_size_device_id, logg);
+
+
+
 
     ESP_LOGI(TAG, "test stop  NVS");
 

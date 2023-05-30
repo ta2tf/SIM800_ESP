@@ -285,6 +285,9 @@ esp_err_t example_wifi_connect(void)
              }
            }
 
+
+           nvs_close(nvs);
+
            wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
            ESP_ERROR_CHECK(esp_wifi_init(&wifi_init_config));
 

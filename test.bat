@@ -1,16 +1,17 @@
  
 @ECHO off 
-
-SET COM=COM17
-SET FWNAME=gatt_server_service_table_demo.bin 
-
+  del nvs.csv
+ (ECHO key,type,encoding,value ^
+ &  ECHO certs,namespace,,  ^
+ &  ECHO certificate,file,string,../main/aws/awsrootca.crt  ^
+ &  ECHO priv_crt,file,string,../main/aws/client.crt  ^
+ &  ECHO priv_key,file,string,../main/aws/client.key  ^
+ &  ECHO dev_id,data,string,%1 ) > nvs.csv 
  
-
-ECHO  -------------------------------
-ECHO  -- Building regular firmware --
-ECHO  -------------------------------
-
-idf.py build
+ 
+SET COM=COM17
+ 
+ 
 
 ECHO  ---------------------------------------------
 ECHO  -- Building Certitificates to store in NVS --
@@ -33,9 +34,6 @@ python C:\Espressif\frameworks\esp-idf-v5.0.1\components\esptool_py\esptool\espt
  --flash_mode dio  ^
  --flash_freq 40m  ^
  --flash_size detect  ^
- 0x10000 %FWNAME%  ^
- 0x1000 bootloader\bootloader.bin  ^
- 0x8000 partition_table\partition-table.bin ^
  0x9000 certs.bin
 cd..
 
@@ -43,3 +41,4 @@ ECHO  -----------------------
 ECHO  -- Flashing Finished --
 ECHO  -----------------------
 	 
+ 
