@@ -28,7 +28,8 @@ python C:\Espressif\frameworks\esp-idf-v5.0.1\components\esptool_py\esptool\espt
  --flash_mode dio  ^
  --flash_freq 40m  ^
  --flash_size detect  ^
- 0x9000 certs.bin
+ 0x9000 certs.bin 
+ 
 cd..
 
 ECHO  -----------------------

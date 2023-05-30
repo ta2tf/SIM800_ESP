@@ -70,6 +70,76 @@ ota_1,app,ota_1,0xc00000,4M,
 static const char *TAG = "MAIN";
 
 
+void second_nvs_test(void)
+{
+
+    ESP_LOGI(TAG, "S T O R A G E start");
+
+    char issid[32];
+    char ipass[32];
+
+    sprintf(issid,"%s","ola mola");
+    sprintf(ipass,"%s","noli la");
+
+    nvs_handle_t storage;
+
+   ESP_ERROR_CHECK( nvs_flash_init());
+   ESP_ERROR_CHECK( nvs_open("storage", NVS_READWRITE, &storage));
+   ESP_ERROR_CHECK( nvs_set_str(storage, "cpyssid", issid));
+   ESP_ERROR_CHECK( nvs_set_str(storage, "cpypass", ipass));
+   nvs_close(storage);
+
+
+
+         size_t ssidLen, passLen;
+         char *ssid = NULL, *pass = NULL;
+
+
+
+             nvs_open("storage", NVS_READWRITE, &storage);
+
+             if (nvs_get_str(storage, "cpyssid", NULL, &ssidLen) == ESP_OK)
+             {
+               if (ssidLen > 0)
+               {
+                 ssid = malloc(ssidLen);
+                 nvs_get_str(storage, "cpyssid", ssid, &ssidLen);
+               }
+             }
+             else
+           	  ESP_LOGI(TAG, "S T O R A G E fail 1");
+
+             if (nvs_get_str(storage, "cpypass", NULL, &passLen) == ESP_OK)
+             {
+               if (passLen > 0)
+               {
+                 pass = malloc(passLen);
+                 nvs_get_str(storage, "cpypass", pass, &passLen);
+               }
+             } else
+           	  ESP_LOGI(TAG, "S T O R A G E fail 2");
+
+
+             nvs_close(storage);
+
+
+             if (ssid != NULL && pass != NULL)
+              {
+            	    ESP_LOGI(TAG, "S T O R A G E  [%s]  :  [%s]", ssid, pass);
+
+                  if (ssid != NULL)
+                    free(ssid);
+                  if (pass != NULL)
+                    free(pass);
+
+              }
+
+             ESP_LOGI(TAG, "S T O R A G E End");
+
+
+}
+
+
 
 
 //==========================================================================================================
@@ -107,12 +177,16 @@ void app_main(void)
         sprintf(ipass,"%s","MeR0TecH_2");
 
 
-        nvs_flash_init();
+        ESP_ERROR_CHECK( nvs_flash_init());
         nvs_handle_t nvs;
-        nvs_open("wifiCreds", NVS_READWRITE, &nvs);
-        nvs_set_str(nvs, "ssid", issid);
-        nvs_set_str(nvs, "pass", ipass);
+        ESP_ERROR_CHECK( nvs_open("wifiCreds", NVS_READWRITE, &nvs));
+        ESP_ERROR_CHECK( nvs_set_str(nvs, "ssid", issid));
+        ESP_ERROR_CHECK( nvs_set_str(nvs, "pass", ipass));
         nvs_close(nvs);
+
+
+        second_nvs_test();
+
 
       //  uart_echo_test();
 
@@ -126,12 +200,12 @@ void app_main(void)
    //  bat_Init();
 
 
-    example_wifi_connect();
+   // example_wifi_connect();
 
 
    //  ota_app();
 
-    aws_main();
+   // aws_main();
 
     while (1)
      {
