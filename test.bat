@@ -1,14 +1,19 @@
  
 @ECHO off 
+
+Echo this cript create nvs.csv file with arg device id  and build certs.bin from NVS.CSV and flash 0x9000
+
   del nvs.csv
- (ECHO key,type,encoding,value ^
- &  ECHO certs,namespace,,  ^
- &  ECHO certificate,file,string,../main/aws/awsrootca.crt  ^
- &  ECHO priv_crt,file,string,../main/aws/client.crt  ^
- &  ECHO priv_key,file,string,../main/aws/client.key  ^
- &  ECHO dev_id,data,string,%1 ) > nvs.csv 
+
+ ECHO key,type,encoding,value>nvs.csv
+ ECHO certs,namespace,,>>nvs.csv
+ ECHO certificate,file,string,../main/aws/awsrootca.crt>>nvs.csv
+ ECHO priv_crt,file,string,../main/aws/client.crt>>nvs.csv
+ ECHO priv_key,file,string,../main/aws/client.key>>nvs.csv
+ ECHO dev_id,data,string,%1>>nvs.csv
  
  
+  
 SET COM=COM17
  
  

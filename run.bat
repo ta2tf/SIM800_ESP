@@ -1,6 +1,8 @@
  
 @ECHO off 
 
+Echo this script build firmware and build certs.bin from NVS.CSV and flash all bin files
+
 SET COM=COM17
 SET FWNAME=gatt_server_service_table_demo.bin 
 

@@ -1,6 +1,8 @@
  
 @ECHO off 
 
+Echo this script build certs.bin from NVS.CSV and flash 0x9000
+
 SET COM=COM17
  
  
