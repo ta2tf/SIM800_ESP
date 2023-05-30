@@ -12,9 +12,9 @@ ECHO  -------------------------------
 
 idf.py build
 
-ECHO ----------------------------------------------
+ECHO  ---------------------------------------------
 ECHO  -- Building Certitificates to store in NVS --
-ECHO ----------------------------------------------
+ECHO  ---------------------------------------------
 
 cd .\build\
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate ^
