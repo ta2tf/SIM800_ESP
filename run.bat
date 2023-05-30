@@ -6,16 +6,24 @@ SET FWNAME=gatt_server_service_table_demo.bin
 
  
 
+ECHO  -------------------------------
+ECHO  -- Building regular firmware --
+ECHO  -------------------------------
 
-ECHO  Building regular firmware
 idf.py build
 
-ECHO  -- Building Certitificates to store in NVS
+ECHO ----------------------------------------------
+ECHO  -- Building Certitificates to store in NVS --
+ECHO ----------------------------------------------
+
 cd .\build\
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate ^
 "C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\nvs.csv" certs.bin 16384
 
-ECHO  -- Flashing to board --
+ECHO  --------------------
+ECHO  -- Flashing Start --
+ECHO  --------------------
+
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\esptool_py\esptool\esptool.py ^
  -p %COM% ^
  -b 460800 ^
@@ -31,6 +39,7 @@ python C:\Espressif\frameworks\esp-idf-v5.0.1\components\esptool_py\esptool\espt
  0x9000 certs.bin
 cd..
 
+ECHO  -----------------------
 ECHO  -- Flashing Finished --
-
+ECHO  -----------------------
 	 
