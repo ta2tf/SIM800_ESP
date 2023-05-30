@@ -60,6 +60,7 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "aws.h"
 #include "httpsota.h"
 #include "wifi_connect.h"
+#include "uart.h"
 
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -67,6 +68,7 @@ ota_1,app,ota_1,0xc00000,4M,
 
 
 static const char *TAG = "MAIN";
+
 
 
 
@@ -98,8 +100,12 @@ void app_main(void)
         char issid[32];
         char ipass[32];
 
-        sprintf(issid,"%s","MERLIN");
-        sprintf(ipass,"%s","narnia1523");
+     //   sprintf(issid,"%s","MERLIN");
+     //   sprintf(ipass,"%s","narnia1523");
+
+        sprintf(issid,"%s","Mertech_2_4");
+        sprintf(ipass,"%s","MeR0TecH_2");
+
 
         nvs_flash_init();
         nvs_handle_t nvs;
@@ -108,6 +114,7 @@ void app_main(void)
         nvs_set_str(nvs, "pass", ipass);
         nvs_close(nvs);
 
+      //  uart_echo_test();
 
     LED_Init();
 
