@@ -8,10 +8,11 @@ set(COMPONENT_SRCS "main.c"
 				   "aws/aws.c" 
 				   "https_ota/httpsota.c" 
 				   "wifi/wifi_connect.c" 
+				   "callme/whatsapp.c"
 				   )
 				   
 				   
-set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" )
+set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" "callme")
 
 
 register_component()
