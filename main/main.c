@@ -46,6 +46,7 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "freertos/task.h"
 #include "freertos/event_groups.h"cd
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_chip_info.h"
@@ -74,6 +75,10 @@ ota_1,app,ota_1,0xc00000,4M,
 static const char *TAG = "MAIN";
 
 #define CUSTOM_NVS_PART_NAME "storage"
+
+xSemaphoreHandle report_semaphore;
+static char  TaskList[250];
+char * ptrTaskList = &TaskList[0];
 
 void second_nvs_test(void)
 {
@@ -195,11 +200,23 @@ static void example_print_chip_info(void)
      esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
      ESP_LOGI("MAC STA address", "MAC address: %02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-
-
-
-
 }
+
+void report_task(void *parms)
+{
+
+
+   while(1)
+   {
+//	        xSemaphoreTake(report_semaphore, portMAX_DELAY);
+//	    	      vTaskList(ptrTaskList);
+//	    	      ESP_LOGI("REPORT", "\nTask\t\tState\tPrio\tStack\tNum\n%s",ptrTaskList);
+//	    	     vTaskGetRunTimeStats(ptrTaskList);
+//	    	    ESP_LOGI("REPORT", "\nTask\t\tRunTime\t\tTimePercent\n%s",ptrTaskList);
+	    	    vTaskDelay(pdMS_TO_TICKS(1000));
+   }
+}
+
 
 
 
@@ -220,6 +237,7 @@ void app_main(void)
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
 
+
     /* Initialize NVS. */
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -231,8 +249,8 @@ void app_main(void)
         char issid[32];
         char ipass[32];
 
-        sprintf(issid,"%s","MERLIN");
-        sprintf(ipass,"%s","narnia1523");
+        sprintf(issid,"%s","SYALCINKAYA");
+        sprintf(ipass,"%s","ta2tf3434");
 
      //   sprintf(issid,"%s","Mertech_2_4");
      //   sprintf(ipass,"%s","MeR0TecH_2");
@@ -254,26 +272,30 @@ void app_main(void)
 
     LED_Init();
 
-    whatsapp_main();
+  //  whatsapp_main();
 
 
-  //   BLE_Init();
+     BLE_Init();
    //   GSM_Init();
 
    //  IP5306_test();
    //  bat_Init();
 
 
-  //  example_wifi_connect();
+   example_wifi_connect();
 
 
    //  ota_app();
 
-   // aws_main();
+     aws_main();
+
+     report_semaphore = xSemaphoreCreateBinary();
+
+	 xTaskCreate(report_task, "report", 1024*2, NULL, configMAX_PRIORITIES, NULL);
 
     while (1)
      {
 
-         vTaskDelay(pdMS_TO_TICKS(100));
+    	   vTaskDelay(pdMS_TO_TICKS(10));
      }
 }

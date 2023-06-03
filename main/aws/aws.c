@@ -35,6 +35,8 @@
 
 
 extern SemaphoreHandle_t s_semph_get_ip_addrs;
+SemaphoreHandle_t s_semph_mqtt_connect = NULL;
+
 
 static const char *TAG = "MQTTS_EXAMPLE";
 
@@ -262,9 +264,6 @@ static void mqtt_app_start(void)
 
 void aws_main(void)
 {
-   ESP_LOGI(TAG, "[APP] Startup..");
-   ESP_LOGI(TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size());
-   ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
     NVS_certificate_get();
 
@@ -277,8 +276,17 @@ void aws_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
 
 
-    if (s_semph_get_ip_addrs) {
-         xSemaphoreTake(s_semph_get_ip_addrs,500000);
-    mqtt_app_start();
+    s_semph_mqtt_connect = xSemaphoreCreateBinary();
+    if (s_semph_mqtt_connect == NULL) {
+    	 ESP_LOGE(TAG, "MQTT_SEMAPHORE_ERROR");
     }
+
+
+    if (s_semph_get_ip_addrs) {
+         xSemaphoreTake(s_semph_get_ip_addrs, portMAX_DELAY);
+         mqtt_app_start();
+    }
+    else
+    	 ESP_LOGE(TAG, "MQTT_WAIT_FOR_WIFI_CONNECTION");
+
 }
