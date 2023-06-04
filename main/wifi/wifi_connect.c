@@ -33,7 +33,7 @@ SemaphoreHandle_t s_semph_get_ip_addrs = NULL;
 static SemaphoreHandle_t s_semph_get_ip6_addrs = NULL;
 #endif
 
-#define CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY   5
+#define CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY   50
 
 #define EXAMPLE_WIFI_SCAN_METHOD WIFI_FAST_SCAN
 //#define EXAMPLE_WIFI_SCAN_METHOD WIFI_ALL_CHANNEL_SCAN
@@ -84,6 +84,7 @@ static void example_handler_on_wifi_disconnect(void *arg, esp_event_base_t event
         if (s_semph_get_ip_addrs) {
             xSemaphoreGive(s_semph_get_ip_addrs);
         }
+
 #if CONFIG_EXAMPLE_CONNECT_IPV6
         if (s_semph_get_ip6_addrs) {
             xSemaphoreGive(s_semph_get_ip6_addrs);
@@ -257,7 +258,7 @@ void example_wifi_shutdown(void)
 
 esp_err_t example_wifi_connect(void)
 {
-    ESP_LOGI(TAG, "Start example_connect.");
+    ESP_LOGI(TAG, "Start Example Connect.");
     example_wifi_start();
 
 

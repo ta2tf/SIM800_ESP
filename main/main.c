@@ -76,8 +76,10 @@ static const char *TAG = "MAIN";
 
 #define CUSTOM_NVS_PART_NAME "storage"
 
+#define configUSE_TRACE_FACILITY    1
+
 xSemaphoreHandle report_semaphore;
-static char  TaskList[250];
+static char  TaskList[1024];
 char * ptrTaskList = &TaskList[0];
 
 void second_nvs_test(void)
@@ -208,12 +210,12 @@ void report_task(void *parms)
 
    while(1)
    {
-//	        xSemaphoreTake(report_semaphore, portMAX_DELAY);
-//	    	      vTaskList(ptrTaskList);
-//	    	      ESP_LOGI("REPORT", "\nTask\t\tState\tPrio\tStack\tNum\n%s",ptrTaskList);
-//	    	     vTaskGetRunTimeStats(ptrTaskList);
-//	    	    ESP_LOGI("REPORT", "\nTask\t\tRunTime\t\tTimePercent\n%s",ptrTaskList);
-	    	    vTaskDelay(pdMS_TO_TICKS(1000));
+ 	        xSemaphoreTake(report_semaphore, portMAX_DELAY);
+	    	     vTaskList(ptrTaskList);
+	    	      ESP_LOGI("REPORT", "\nTask\t\tState\tPrio\tStack\tNum\n%s",ptrTaskList);
+	    	     vTaskGetRunTimeStats(ptrTaskList);
+	    	      ESP_LOGI("REPORT", "\nTask\t\tRunTime\t\tTimePercent\n%s",ptrTaskList);
+	    	     vTaskDelay(pdMS_TO_TICKS(1000));
    }
 }
 
