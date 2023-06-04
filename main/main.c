@@ -278,7 +278,7 @@ void app_main(void)
 
 
      BLE_Init();
-   //   GSM_Init();
+     GSM_Init();
 
    //  IP5306_test();
    //  bat_Init();

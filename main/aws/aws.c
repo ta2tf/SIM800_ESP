@@ -64,6 +64,10 @@ size_t value_size_certificate;
 size_t value_size_device_id;
 
 
+int32_t MQTT_CONNECTED = 0;
+esp_mqtt_client_handle_t client = NULL;
+
+
 char * nvs_load_value_if_exist(nvs_handle handle, const char* key, size_t *value_size )
 {
 	static const char TAG[] = "NVS-Test";
@@ -183,6 +187,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+       MQTT_CONNECTED = 1;
+
         msg_id = esp_mqtt_client_subscribe(client, "/topic/qos0", 0);
        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
@@ -194,6 +200,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DISCONNECTED:
        ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+       MQTT_CONNECTED = 0;
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
@@ -256,11 +263,30 @@ static void mqtt_app_start(void)
   };
 
    ESP_LOGI(TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size());
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+   client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
 }
+
+
+
+//==========================================================================================
+// Publisher_Task
+//==========================================================================================
+void Publisher_Task(void *params)
+{
+  while (true)
+  {
+    if(MQTT_CONNECTED)
+    {
+        esp_mqtt_client_publish(client, "/topic/test3", "{\"Hello\": \"World\"}", 0, 0, 0);
+        vTaskDelay(15000 / portTICK_PERIOD_MS);
+    }
+  }
+}
+
+
 
 void aws_main(void)
 {
@@ -268,7 +294,7 @@ void aws_main(void)
     NVS_certificate_get();
 
    // esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("MQTT_CLIENT", ESP_LOG_INFO);
+    esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
     esp_log_level_set("TRANSPORT_BASE", ESP_LOG_INFO);
     esp_log_level_set("TRANSPORT", ESP_LOG_INFO);
     esp_log_level_set("OUTBOX", ESP_LOG_INFO);
@@ -285,6 +311,7 @@ void aws_main(void)
     if (s_semph_get_ip_addrs) {
          xSemaphoreTake(s_semph_get_ip_addrs, portMAX_DELAY);
          mqtt_app_start();
+         xTaskCreate(Publisher_Task, "Publisher_Task", 1024 * 5, NULL, 3, NULL);
     }
     else
     	 ESP_LOGE(TAG, "MQTT_WAIT_FOR_WIFI_CONNECTION");
