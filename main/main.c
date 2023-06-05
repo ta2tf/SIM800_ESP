@@ -71,12 +71,27 @@ ota_1,app,ota_1,0xc00000,4M,
 
 #include "whatsapp.h"
 
+#include "driver/rmt.h"
+#include "led_strip.h"
+
 
 static const char *TAG = "MAIN";
 
 #define CUSTOM_NVS_PART_NAME "storage"
 
-#define configUSE_TRACE_FACILITY    1
+
+#define RMT_TX_CHANNEL RMT_CHANNEL_0
+#define EXAMPLE_CHASE_SPEED_MS (5)
+#define CONFIG_EXAMPLE_RMT_TX_GPIO 13
+#define CONFIG_EXAMPLE_STRIP_LED_NUMBER 100
+
+static TaskHandle_t ledtaskHandler = NULL;
+
+uint32_t red = 0;
+uint32_t green = 0;
+uint32_t blue = 0;
+uint32_t blink = 2;
+
 
 xSemaphoreHandle report_semaphore;
 static char  TaskList[1024];
@@ -219,6 +234,75 @@ void report_task(void *parms)
    }
 }
 
+int pos=0;
+
+static void colorled(void *pvParameters)
+{
+
+
+	 uint state;
+
+    rmt_config_t config = RMT_DEFAULT_CONFIG_TX(CONFIG_EXAMPLE_RMT_TX_GPIO, RMT_TX_CHANNEL);
+    // set counter clock to 40MHz
+    config.clk_div = 2;
+
+    ESP_ERROR_CHECK(rmt_config(&config));
+    ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
+
+    // install ws2812 driver
+    led_strip_config_t strip_config = LED_STRIP_DEFAULT_CONFIG(CONFIG_EXAMPLE_STRIP_LED_NUMBER, (led_strip_dev_t)config.channel);
+    led_strip_t *strip = led_strip_new_rmt_ws2812(&strip_config);
+    if (!strip) {
+        ESP_LOGE(TAG, "install WS2812 driver failed");
+    }
+    // Clear LED strip (turn off all LEDs)
+    ESP_ERROR_CHECK(strip->clear(strip, 100));
+
+    ESP_LOGI(TAG, "LED Color Start");
+
+    while (true) {
+
+    	 xTaskNotifyWait(0xffffffff, 0, &state, portMAX_DELAY);
+    	    ESP_LOGI(TAG,"received state %d flags\n", state);
+
+
+
+		if (state == 0 ) // bink
+		{
+		  strip->clear(strip, 50);
+		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+		}
+		else if (state == 1 ) // bink
+		{ ESP_ERROR_CHECK(strip->set_pixel(strip, pos, red, green, blue));
+	      ESP_ERROR_CHECK(strip->refresh(strip, 100));
+		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+		  strip->clear(strip, 50);
+		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+		  xTaskNotify(ledtaskHandler, (1), eSetBits);
+		  pos++;
+		}
+		else if (state == 2 ) // one shot
+		{ ESP_ERROR_CHECK(strip->set_pixel(strip, 0, red, green, blue));
+	      ESP_ERROR_CHECK(strip->refresh(strip, 100));
+		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+		  strip->clear(strip, 50);
+		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+		}
+		else if (state == 3 ) // continuous
+		{ ESP_ERROR_CHECK(strip->set_pixel(strip, pos, red, green, blue));
+	      ESP_ERROR_CHECK(strip->refresh(strip, 100));
+	      vTaskDelay(pdMS_TO_TICKS(50));
+	      pos++;
+
+		}
+		else
+			vTaskDelay(pdMS_TO_TICKS(50));
+
+
+
+
+    }
+}
 
 
 
@@ -277,27 +361,31 @@ void app_main(void)
   //  whatsapp_main();
 
 
-     BLE_Init();
-     GSM_Init();
+    // BLE_Init();
+    // GSM_Init();
 
    //  IP5306_test();
    //  bat_Init();
 
 
-   example_wifi_connect();
+  // example_wifi_connect();
 
 
    //  ota_app();
 
-     aws_main();
+   //  aws_main();
 
      report_semaphore = xSemaphoreCreateBinary();
 
 	 xTaskCreate(report_task, "report", 1024*2, NULL, configMAX_PRIORITIES, NULL);
+	 xTaskCreatePinnedToCore(&colorled, "color_led", 1024*3, NULL, 5, &ledtaskHandler,1);
+
 
     while (1)
      {
 
+    	  blue = blue+1;
+    	        xTaskNotify(ledtaskHandler, (3), eSetBits);
     	   vTaskDelay(pdMS_TO_TICKS(10));
      }
 }

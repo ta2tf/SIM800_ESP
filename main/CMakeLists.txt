@@ -9,10 +9,11 @@ set(COMPONENT_SRCS "main.c"
 				   "https_ota/httpsota.c" 
 				   "wifi/wifi_connect.c" 
 				   "callme/whatsapp.c"
+				   "ws2812/led_strip_rmt_ws2812.c"
 				   )
 				   
 				   
-set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" "callme")
+set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" "callme" "ws2812")
 
 
 register_component()
