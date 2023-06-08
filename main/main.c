@@ -234,7 +234,7 @@ void report_task(void *parms)
    }
 }
 
-int pos=0;
+int pos=3;
 
 static void colorled(void *pvParameters)
 {
@@ -267,7 +267,9 @@ static void colorled(void *pvParameters)
 
 
 
-		if (state == 0 ) // bink
+
+
+		if (state == 0 ) // clear
 		{
 		  strip->clear(strip, 50);
 		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
@@ -279,10 +281,10 @@ static void colorled(void *pvParameters)
 		  strip->clear(strip, 50);
 		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
 		  xTaskNotify(ledtaskHandler, (1), eSetBits);
-		  pos++;
+
 		}
 		else if (state == 2 ) // one shot
-		{ ESP_ERROR_CHECK(strip->set_pixel(strip, 0, red, green, blue));
+		{ ESP_ERROR_CHECK(strip->set_pixel(strip, pos, red, green, blue));
 	      ESP_ERROR_CHECK(strip->refresh(strip, 100));
 		  vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
 		  strip->clear(strip, 50);
@@ -291,8 +293,8 @@ static void colorled(void *pvParameters)
 		else if (state == 3 ) // continuous
 		{ ESP_ERROR_CHECK(strip->set_pixel(strip, pos, red, green, blue));
 	      ESP_ERROR_CHECK(strip->refresh(strip, 100));
-	      vTaskDelay(pdMS_TO_TICKS(50));
-	      pos++;
+	     // vTaskDelay(pdMS_TO_TICKS(50));
+
 
 		}
 		else
@@ -380,12 +382,17 @@ void app_main(void)
 	 xTaskCreate(report_task, "report", 1024*2, NULL, configMAX_PRIORITIES, NULL);
 	 xTaskCreatePinnedToCore(&colorled, "color_led", 1024*3, NULL, 5, &ledtaskHandler,1);
 
+	 red = 100;
+	 vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
     while (1)
      {
 
-    	  blue = blue+1;
-    	        xTaskNotify(ledtaskHandler, (3), eSetBits);
+
+
+
+
     	   vTaskDelay(pdMS_TO_TICKS(10));
      }
 }
