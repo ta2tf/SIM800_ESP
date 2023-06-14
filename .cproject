@@ -12,7 +12,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="org.eclipse.cdt.core.pathentry">
-		<pathentry excluding="main/aws|aws/" kind="src" path=""/>
+		<pathentry excluding="main/http_server|main/aws|aws/|http_server/" kind="src" path=""/>
 		<pathentry excluding="**/CMakeFiles/**" kind="out" path="build"/>
 	</storageModule>
 </cproject>

@@ -1,0 +1,160 @@
+key,type,encoding,value
+spn_name,namespace,,
+SPN16,data,string,Engine Fuel Filter Differential Pressure (see also SPN 1382)
+SPN18,data,string,Engine Fuel Pressure (Extended Range)
+SPN19,data,string,Engine Oil Pressure (Extended Range)
+SPN20,data,string,Engine Coolant Pressure 1 (Extended Range)
+SPN21,data,string,Engine ECU Temperature (use SPN 1136)
+SPN22,data,string,Engine Extended Crankcase Blow  by Pressure
+SPN23,data,string,Generator Oil Pressure
+SPN24,data,string,Generator Coolant Temperature
+SPN27,data,string,Engine Exhaust Gas Recirculation 1 Valve 
+SPN28,data,string,Accelerator Pedal 3 
+SPN29,data,string,Accelerator Pedal 2 
+SPN30,data,string,Engine Crankcase Blowby Pressure
+SPN31,data,string,Transmission Range 
+SPN32,data,string,Transmission Splitter 
+SPN33,data,string,Clutch Cylinder 
+SPN36,data,string,Clutch Plates
+SPN37,data,string,Transmission Air Tank Pressure
+SPN38,data,string,Fuel Level 2
+SPN39,data,string,Tire Pressure Check Interval
+SPN46,data,string,Pneumatic Supply Pressure
+SPN48,data,string,Barometric Pressure (Extended Range)
+SPN51,data,string,Engine Throttle Valve 1  1
+SPN52,data,string,Engine Intercooler Temperature
+SPN53,data,string,Transmission Synchronizer Clutch Value
+SPN54,data,string,Transmission Synchronizer Brake Value
+SPN59,data,string,Transmission Shift Finger Gear 
+SPN60,data,string,Transmission Shift Finger Rail 
+SPN64,data,string,Transmission #2 Oil Temperature
+SPN69,data,string,Two Speed Axle Switch
+SPN70,data,string,Parking Brake Switch
+SPN72,data,string,Engine Blower Bypass Valve 
+SPN73,data,string,Auxiliary Pump Pressure
+SPN74,data,string,Maximum Vehicle Speed Limit
+SPN75,data,string,Steering Axle Temperature
+SPN76,data,string,Axle Lift Air Pressure
+SPN77,data,string,Forward Rear Drive Axle Temperature
+SPN78,data,string,Rear Rear Drive Axle Temperature
+SPN79,data,string,Road Surface Temperature
+SPN80,data,string,Washer Fluid Level
+SPN81,data,string,Aftertreatment 1 Diesel Particulate Filter Intake Pressure (use SPN 3609)
+SPN82,data,string,Engine Air Start Pressure
+SPN84,data,string,Wheel  Based Vehicle Speed
+SPN86,data,string,Cruise Control Set Speed
+SPN87,data,string,Cruise Control High Set Limit Speed
+SPN88,data,string,Cruise Control Low Set Limit Speed
+SPN90,data,string,Power Takeoff Oil Temperature
+SPN91,data,string,Accelerator Pedal  1
+SPN92,data,string,Engine Percent Load At Current Speed
+SPN93,data,string,Engine Net Brake Torque
+SPN94,data,string,Engine Fuel Delivery Pressure
+SPN95,data,string,Engine Fuel Filter Differential Pressure
+SPN96,data,string,Fuel Level 1
+SPN97,data,string,Water In Fuel Indicator 1
+SPN98,data,string,Engine Oil Level
+SPN99,data,string,Engine Oil Filter Differential Pressure
+SPN100,data,string,Engine Oil Pressure 1
+SPN101,data,string,Engine Crankcase Pressure 1
+SPN102,data,string,Engine Intake Manifold #1 Pressure
+SPN103,data,string,Engine Turbocharger 1 Speed
+SPN104,data,string,Engine Turbocharger Lube Oil Pressure 1
+SPN105,data,string,Engine Intake Manifold 1 Temperature
+SPN106,data,string,Engine Intake Air Pressure
+SPN107,data,string,Engine Air Filter 1 Differential Pressure
+SPN108,data,string,Barometric Pressure
+SPN109,data,string,Engine Coolant Pressure 1
+SPN110,data,string,Engine Coolant Temperature
+SPN111,data,string,Engine Coolant Level 1
+SPN112,data,string,Engine Coolant Filter Differential Pressure
+SPN113,data,string,Engine Governor Droop
+SPN114,data,string,SLI Battery 1 Net Current
+SPN115,data,string,Alternator Current
+SPN116,data,string,Brake Application Pressure
+SPN117,data,string,Brake Primary Pressure
+SPN118,data,string,Brake Secondary Pressure
+SPN119,data,string,Hydraulic Retarder Pressure
+SPN120,data,string,Hydraulic Retarder Oil Temperature
+SPN122,data,string,Engine Retarder Percent
+SPN123,data,string,Transmission Clutch 1 Pressure
+SPN124,data,string,Transmission Oil Level 1
+SPN126,data,string,Transmission Filter Differential Pressure
+SPN127,data,string,Transmission 1 Oil Pressure
+SPN129,data,string,Engine Fuel 1 Injector Metering Rail 2 Pressure (duplicate, use SPN 1349)
+SPN130,data,string,Engine Power Specific Fuel Economy
+SPN131,data,string,Engine Exhaust Pressure (duplicate, use SPN 1209)
+SPN132,data,string,Engine Intake Air Mass Flow Rate
+SPN133,data,string,Engine Average Fuel Rate
+SPN135,data,string,Engine Fuel Delivery Pressure (Absolute)
+SPN136,data,string,Auxiliary Vacuum Pressure Reading
+SPN137,data,string,Auxiliary Gage Pressure Reading 1
+SPN138,data,string,Auxiliary Absolute Pressure Reading
+SPN141,data,string,Trailer, Tag Or Push Channel Tire Pressure Target
+SPN142,data,string,Drive Channel Tire Pressure Target
+SPN143,data,string,Steer Channel Tire Pressure Target
+SPN144,data,string,Trailer, Tag Or Push Channel Tire Pressure
+SPN145,data,string,Drive Channel Tire Pressure
+SPN146,data,string,Steer Channel Tire Pressure
+SPN147,data,string,Engine Average Fuel Economy (Gaseous)
+SPN148,data,string,Engine Instantaneous Fuel Economy (Gaseous)
+SPN149,data,string,Engine Mass Flow Rate (Gaseous)    (Obsolete    Use SPN 1241)
+SPN152,data,string,Number Of ECU Resets
+SPN153,data,string,Engine Crankcase Pressure (High Resolution)
+SPN156,data,string,Engine Fuel 1 Injector Timing Rail 1 Pressure
+SPN157,data,string,Engine Fuel 1 Injector Metering Rail 1 Pressure
+SPN158,data,string,Key Switch Battery Potential
+SPN159,data,string,Engine Gaseous Fuel Supply Pressure 1
+SPN160,data,string,Transmission Intermediate Shaft Speed
+SPN161,data,string,Transmission 1 Input Shaft Speed
+SPN162,data,string,Transmission Requested Range
+SPN163,data,string,Transmission Current Range
+SPN164,data,string,Engine Fuel Injection Control Pressure
+SPN165,data,string,Compass Bearing
+SPN166,data,string,Engine Rated Power
+SPN167,data,string,Charging System Potential (Voltage)
+SPN168,data,string,Battery Potential / Power Input 1
+SPN169,data,string,Cargo Ambient Temperature
+SPN170,data,string,Cab Interior Temperature
+SPN171,data,string,Ambient Air Temperature
+SPN172,data,string,Engine Intake 1 Air Temperature
+SPN173,data,string,Engine Exhaust Temperature
+SPN174,data,string,Engine Fuel 1 Temperature 1
+SPN175,data,string,Engine Oil Temperature 1
+SPN176,data,string,Engine Turbocharger 1 Oil Temperature
+SPN177,data,string,Transmission Oil Temperature 1
+SPN178,data,string,Front Axle Weight
+SPN179,data,string,Rear Axle Weight
+SPN180,data,string,Trailer Weight
+SPN181,data,string,Cargo Weight
+SPN182,data,string,Engine Trip Fuel
+SPN183,data,string,Engine Fuel Rate
+SPN184,data,string,Engine Instantaneous Fuel Economy
+SPN185,data,string,Engine Average Fuel Economy
+SPN186,data,string,Power Takeoff Speed
+SPN187,data,string,Power Takeoff Set Speed
+SPN188,data,string,Engine Speed At Idle, Point 1
+SPN189,data,string,Engine Rated Speed
+SPN190,data,string,Engine Speed
+SPN191,data,string,Transmission 1 Output Shaft Speed
+SPN228,data,string,Speed Sensor Calibration
+SPN229,data,string,Total Fuel Used (Gaseous) (duplicate, use SPN 1040)
+SPN230,data,string,Total Idle Fuel Used (Gaseous) (duplicate, use SPN 1010)
+SPN231,data,string,Trip Fuel (Gaseous) (duplicate, use SPN 1039)
+SPN232,data,string,DGPS Differential Correction
+SPN233,data,string,Unit Number (Power Unit)
+SPN234,data,string,Software Identification
+SPN235,data,string,Engine Total Idle Hours
+SPN236,data,string,Engine Total Idle Fuel Used
+SPN237,data,string,Vehicle Identification Number
+SPN238,data,string,Velocity Vector
+SPN241,data,string,Tire Pressure
+SPN242,data,string,Tire Temperature
+SPN244,data,string,Trip Distance
+SPN245,data,string,Total Vehicle Distance
+SPN246,data,string,Total Vehicle Hours
+SPN248,data,string,Total Power Takeoff Hours
+SPN249,data,string,Engine Total Revolutions
+SPN250,data,string,Engine Total Fuel Used
+SPN251,data,string,Time
+SPN252,data,string,Date 123456asdadasdasdsd7891231313131313131313

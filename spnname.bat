@@ -13,9 +13,9 @@ ECHO  ---------------------------------------------
 
 cd .\build\
 python C:\Espressif\frameworks\esp-idf-v5.0.1\components\nvs_flash\nvs_partition_generator\nvs_partition_gen.py generate ^
-"C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\storage.csv" second.bin 16384
+"C:\Espressif\frameworks\esp-idf-v5.0.1\workspace2\SIM800_ESP\spn_name.csv" spnname.bin 16384
 
- 
+
 
 ECHO  --------------------
 ECHO  -- Flashing Start --
@@ -30,7 +30,7 @@ python C:\Espressif\frameworks\esp-idf-v5.0.1\components\esptool_py\esptool\espt
  --flash_mode dio  ^
  --flash_freq 40m  ^
  --flash_size detect  ^
- 0x110000 second.bin 
+ 0x110000 spnname.bin 
  
 cd..
 

@@ -73,6 +73,7 @@ ota_1,app,ota_1,0xc00000,4M,
 
 #include "driver/rmt.h"
 #include "led_strip.h"
+#include "http_server.h"
 
 
 static const char *TAG = "MAIN";
@@ -308,6 +309,126 @@ static void colorled(void *pvParameters)
 
 
 
+
+
+// Get the string name of type enum values used in this example
+static const char* get_type_str(esp_partition_type_t type)
+{
+    switch(type) {
+        case ESP_PARTITION_TYPE_APP:
+            return "ESP_PARTITION_TYPE_APP";
+        case ESP_PARTITION_TYPE_DATA:
+            return "ESP_PARTITION_TYPE_DATA";
+        default:
+            return "UNKNOWN_PARTITION_TYPE"; // type not used in this example
+    }
+}
+
+// Get the string name of subtype enum values used in this example
+static const char* get_subtype_str(esp_partition_subtype_t subtype)
+{
+    switch(subtype) {
+        case ESP_PARTITION_SUBTYPE_DATA_NVS:
+            return "ESP_PARTITION_SUBTYPE_DATA_NVS";
+        case ESP_PARTITION_SUBTYPE_DATA_PHY:
+            return "ESP_PARTITION_SUBTYPE_DATA_PHY";
+        case ESP_PARTITION_SUBTYPE_APP_FACTORY:
+            return "ESP_PARTITION_SUBTYPE_APP_FACTORY";
+        case ESP_PARTITION_SUBTYPE_DATA_FAT:
+            return "ESP_PARTITION_SUBTYPE_DATA_FAT";
+        default:
+            return "UNKNOWN_PARTITION_SUBTYPE"; // subtype not used in this example
+    }
+}
+
+// Find the partition using given parameters
+static void find_partition(esp_partition_type_t type, esp_partition_subtype_t subtype, const char* name)
+{
+
+    ESP_LOGI(TAG, "Find partition with type %s, subtype %s, label %s...", get_type_str(type), get_subtype_str(subtype),
+                        name == NULL ? "NULL (unspecified)" : name);
+
+    const esp_partition_t * part  = esp_partition_find_first(type, subtype, name);
+
+    if (part != NULL) {
+        ESP_LOGI(TAG, "\tfound partition '%s' at offset 0x%x with size 0x%x", part->label, part->address, part->size);
+    } else {
+        ESP_LOGE(TAG, "\tpartition not found!");
+    }
+}
+
+//void Partition_test(void)
+//{
+//    /*
+//    * This example uses the partition table from ../partitions_example.csv. For reference, its contents are as follows:
+//    *
+//    *  nvs,        data, nvs,      0x9000,  0x6000,
+//    *  phy_init,   data, phy,      0xf000,  0x1000,
+//    *  factory,    app,  factory,  0x10000, 1M,
+//    *  storage1,   data, fat,             , 0x40000,
+//    *  storage2,   data, fat,             , 0x40000,
+//    *
+//    * Display the partition table to the user for reference.
+//    */
+//    extern const char csv_start[] asm("_binary_partitions_example_csv_start");
+//    extern const char csv_end[]   asm("_binary_partitions_example_csv_end");
+//
+//    ESP_LOGI(TAG, "Printing partition table csv file contents for reference...\n\n%.*s", csv_end - csv_start + 1, csv_start);
+//
+//    /* First Part - Finding partitions using esp_partition_find_first. */
+//
+//    ESP_LOGI(TAG, "----------------Find partitions---------------");
+//
+//    // Find partitions using esp_partition_find_first(). This returns the first partition matching the passed constraints.
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_PHY, NULL);
+//    find_partition(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
+//
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_FAT, NULL);
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_SPIFFS, NULL);
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_APP_OTA_1, NULL);
+//
+//    ESP_LOGI(TAG, "Find second FAT partition by specifying the label");
+//    // In case of multiple matches, `esp_partition_find_first` returns the first match.
+//    find_partition(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, "nvs_ext");
+//
+//    /* Second Part - Iterating over partitions */
+//
+//    ESP_LOGI(TAG, "----------------Iterate through partitions---------------");
+//
+//    esp_partition_iterator_t it;
+//
+//    ESP_LOGI(TAG, "Iterating through app partitions...");
+//    it = esp_partition_find(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_ANY, NULL);
+//
+//    // Loop through all matching partitions, in this case, all with the type 'data' until partition with desired
+//    // label is found. Verify if its the same instance as the one found before.
+//    for (; it != NULL; it = esp_partition_next(it)) {
+//        const esp_partition_t *part = esp_partition_get(it);
+//        ESP_LOGI(TAG, "\tfound partition '%s' at offset 0x%x with size 0x%x", part->label, part->address, part->size);
+//    }
+//    // Release the partition iterator to release memory allocated for it
+//    esp_partition_iterator_release(it);
+//
+//    ESP_LOGI(TAG, "Iterating through data partitions...");
+//    it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, NULL);
+//
+//    // Loop through all matching partitions, in this case, all with the type 'data' until partition with desired
+//    // label is found. Verify if its the same instance as the one found before.
+//    for (; it != NULL; it = esp_partition_next(it)) {
+//        const esp_partition_t *part = esp_partition_get(it);
+//        ESP_LOGI(TAG, "\tfound partition '%s' at offset 0x%x with size 0x%x", part->label, part->address, part->size);
+//    }
+//
+//    // Release the partition iterator to release memory allocated for it
+//    esp_partition_iterator_release(it);
+//
+//    ESP_LOGI(TAG, "Example end");
+//}
+
+
 //==========================================================================================================
 //==========================================================================================================
 //
@@ -337,8 +458,8 @@ void app_main(void)
         char issid[32];
         char ipass[32];
 
-        sprintf(issid,"%s","SYALCINKAYA");
-        sprintf(ipass,"%s","ta2tf3434");
+        sprintf(issid,"%s","Mertech_2_4");
+        sprintf(ipass,"%s","MeR0TecH_2");
 
      //   sprintf(issid,"%s","Mertech_2_4");
      //   sprintf(ipass,"%s","MeR0TecH_2");
@@ -351,14 +472,21 @@ void app_main(void)
         ESP_ERROR_CHECK( nvs_set_str(nvs, "pass", ipass));
         nvs_close(nvs);
 
-        example_print_chip_info();
+        LED_Init();
 
-        second_nvs_test();
+        example_wifi_connect();
+
+
+      //  Partition_test();
+
+       // example_print_chip_info();
+
+        //second_nvs_test();
 
 
       //  uart_echo_test();
 
-    LED_Init();
+
 
   //  whatsapp_main();
 
@@ -370,21 +498,23 @@ void app_main(void)
    //  bat_Init();
 
 
-  // example_wifi_connect();
+
 
 
    //  ota_app();
 
    //  aws_main();
 
-     report_semaphore = xSemaphoreCreateBinary();
+//     report_semaphore = xSemaphoreCreateBinary();
+//
+//	 xTaskCreate(report_task, "report", 1024*2, NULL, configMAX_PRIORITIES, NULL);
+//	 xTaskCreatePinnedToCore(&colorled, "color_led", 1024*3, NULL, 5, &ledtaskHandler,1);
+//
+//	 red = 100;
+//	 vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
+//	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
-	 xTaskCreate(report_task, "report", 1024*2, NULL, configMAX_PRIORITIES, NULL);
-	 xTaskCreatePinnedToCore(&colorled, "color_led", 1024*3, NULL, 5, &ledtaskHandler,1);
-
-	 red = 100;
-	 vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
-	 xTaskNotify(ledtaskHandler, (3), eSetBits);
+    xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
 
     while (1)
      {
