@@ -26,7 +26,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/twai.h"
-#include "hal/twai_types.h"
+
 
 
 
@@ -51,28 +51,31 @@
 */
 
 //  TARGET ESP32
-// #define TX_GPIO_NUM             21
-// #define RX_GPIO_NUM             22
+ #define TX_GPIO_NUM             27
+ #define RX_GPIO_NUM             26
 
-//  TARGET ESP32 S3
-#define TX_GPIO_NUM             4
-#define RX_GPIO_NUM             5
+////  TARGET ESP32 S3
+//#define TX_GPIO_NUM             4
+//#define RX_GPIO_NUM             5
 
 
-#define RX_TASK_PRIO            9            //Receiving task priority
-#define FILTER_MSG_ID                  0x18FD0900   //11 bit standard format ID
-#define FILTER_MSG_MASK                0x18000000   //11 bit standard format ID
+#define RX_TASK_PRIO            8     //Receiving task priority
+#define TX_TASK_PRIO            9
+#define FILTER_MSG_ID                  0x1FFFFFFF   //11 bit standard format ID
+#define FILTER_MSG_MASK                0x1FFFFFFF   //11 bit standard format ID
 
 
 #define CAN_TAG             "CAN:"
 
 static const twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+static const twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
 //Filter all other IDs except MSG_ID
-static const twai_filter_config_t f_config = {.acceptance_code = (FILTER_MSG_ID << 3),
-                                             .acceptance_mask = ~(FILTER_MSG_MASK<<3),
-                                             .single_filter = true};
+//static const twai_filter_config_t f_config = {.acceptance_code = (FILTER_MSG_ID << 3),
+//                                             .acceptance_mask = ~(FILTER_MSG_MASK<<3),
+//                                             .single_filter = true};
 //Set to NO_ACK mode due to self testing with single module
-static const twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(TX_GPIO_NUM, RX_GPIO_NUM, TWAI_MODE_NORMAL);
+static const twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(TX_GPIO_NUM, RX_GPIO_NUM, TWAI_MODE_NO_ACK);
 static char canXML[256];
 static char canJSON[256];
 static char canXMLlist[6*1024];
@@ -89,6 +92,35 @@ QueueHandle_t can_rx_queue = NULL;
 
 /* --------------------------- CAN Tasks and Functions -------------------------- */
 
+
+
+static void twai_transmit_task(void *arg)
+{
+	static const twai_message_t tx_message = {.identifier = 0x18FEEE31, .data_length_code = 0,
+	                                        .data = {0, 0 , 0 , 0 ,0 ,0 ,0 ,0}};
+
+	//Configure message to transmit
+	twai_message_t message;
+	message.identifier = 0xAAAA;
+	message.extd = 1;
+	message.data_length_code = 4;
+	for (int i = 0; i < 4; i++) {
+	    message.data[i] = 0;
+	}
+
+
+	while (1) {
+
+
+            twai_transmit(&tx_message, portMAX_DELAY);
+            ESP_LOGI(CAN_TAG, "Transmitted ping ");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+
+        }
+
+    vTaskDelete(NULL);
+}
+
 //==========================================================================================
 //==========================================================================================
 // twai_receive_task
@@ -97,6 +129,8 @@ QueueHandle_t can_rx_queue = NULL;
 static void twai_receive_task(void *arg)
 {
     twai_message_t rx_message;
+
+    ESP_LOGI(CAN_TAG,"%s", "twai_receive_task STARTED");
 
    while (1)
         {
@@ -165,6 +199,7 @@ static void twai_receive_task(void *arg)
 
 
 
+
 void CAN_Test(void)
 {
 
@@ -176,6 +211,6 @@ void CAN_Test(void)
 	  ESP_LOGI(CAN_TAG, "Can Driver started");
 
 	  can_rx_queue = xQueueCreate(100, sizeof(can_message_t));
-
-
+	  xTaskCreatePinnedToCore(twai_receive_task, "TWAI_rx", 4096, NULL, RX_TASK_PRIO, NULL, tskNO_AFFINITY);
+	  xTaskCreatePinnedToCore(twai_transmit_task, "TWAI_tx", 4096, NULL, TX_TASK_PRIO, NULL, tskNO_AFFINITY);
 }

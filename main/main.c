@@ -459,8 +459,8 @@ void app_main(void)
         char issid[32];
         char ipass[32];
 
-        sprintf(issid,"%s","Mertech_2_4");
-        sprintf(ipass,"%s","MeR0TecH_2");
+        sprintf(issid,"%s","MERLIN");
+        sprintf(ipass,"%s","narnia1523");
 
      //   sprintf(issid,"%s","Mertech_2_4");
      //   sprintf(ipass,"%s","MeR0TecH_2");
@@ -478,7 +478,7 @@ void app_main(void)
         example_wifi_connect();
 
         CAN_Test();
-        test_can_linklist();
+       // test_can_linklist();
 
 
       //  Partition_test();
