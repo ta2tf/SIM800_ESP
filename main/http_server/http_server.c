@@ -26,6 +26,8 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+
+
 // Build http header
 const static char http_html_hdr[] =
 		"HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
@@ -271,7 +273,10 @@ void http_server_task(void *pvParameters) {
 			http_server_netconn_serve(newconn);
 			netconn_delete(newconn);
 		}
+
 	} while (err == ERR_OK);
+
+
 	netconn_close(conn);
 	netconn_delete(conn);
 }

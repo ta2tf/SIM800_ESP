@@ -11,10 +11,12 @@ set(COMPONENT_SRCS "main.c"
 				   "callme/whatsapp.c"
 				   "ws2812/led_strip_rmt_ws2812.c"
 				   "http_server/http_server.c"
+				   "twai_can/can.c"
+				   "twai_can/can_buf.c"
 				   )
 				   
 				   
-set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" "callme" "ws2812" "http_server")
+set(COMPONENT_ADD_INCLUDEDIRS "." "gsm" "ble" "board" "aws" "https_ota" "wifi" "callme" "ws2812" "http_server" "twai_can")
 
 
 register_component()

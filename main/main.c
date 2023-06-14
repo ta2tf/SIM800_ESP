@@ -74,7 +74,8 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "driver/rmt.h"
 #include "led_strip.h"
 #include "http_server.h"
-
+#include "can.h"
+#include "can_buf.h"
 
 static const char *TAG = "MAIN";
 
@@ -476,6 +477,9 @@ void app_main(void)
 
         example_wifi_connect();
 
+        CAN_Test();
+        test_can_linklist();
+
 
       //  Partition_test();
 
@@ -515,6 +519,7 @@ void app_main(void)
 //	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
     xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
+    can_buffer_run();
 
     while (1)
      {

@@ -10,6 +10,7 @@
 
 
 
-
+int test_can_linklist();
+void can_buffer_run(void);
 
 #endif /* MAIN_TWAI_CAN_CAN_BUF_H_ */
