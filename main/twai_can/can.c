@@ -96,14 +96,14 @@ QueueHandle_t can_rx_queue = NULL;
 
 static void twai_transmit_task(void *arg)
 {
-//	static const twai_message_t tx_message = {.identifier = 0x18FEEE31, .data_length_code = 0,
-//	                                        .data = {0, 0 , 0 , 0 ,0 ,0 ,0 ,0}};
+
 
 	//Configure message to transmit
 	twai_message_t message;
 	message.identifier = 0x18FD0900;
 	message.extd = 1;
 	message.data_length_code = 8;
+
 	for (int i = 0; i < 8; i++) {
 	    message.data[i] = i;
 	}
@@ -112,7 +112,7 @@ static void twai_transmit_task(void *arg)
 	while (1) {
 
 
-            twai_transmit(&message, portMAX_DELAY);
+            twai_transmit(&message, 10000);
             ESP_LOGI(CAN_TAG, "Transmitted ping ");
             vTaskDelay(pdMS_TO_TICKS(5000));
 
@@ -136,6 +136,8 @@ static void twai_receive_task(void *arg)
         {
             //Receive message and print message data
             ESP_ERROR_CHECK(twai_receive(&rx_message, portMAX_DELAY));
+
+            xQueueSend(can_rx_queue, &rx_message, portMAX_DELAY);
 
                     if (!(rx_message.rtr))
                     {
@@ -177,16 +179,8 @@ static void twai_receive_task(void *arg)
 //
 
 
-                        can_message_t InCanMsg;
 
 
-                        InCanMsg.identifier = rx_message.identifier;
-                        InCanMsg.data_length_code = rx_message.data_length_code;
-
-                        for(int j=0;j< InCanMsg.data_length_code;j++)
-                        	InCanMsg.data[j] = rx_message.data[j];
-
-                        xQueueSend(can_rx_queue, &InCanMsg, portMAX_DELAY);
 
 
 
@@ -210,7 +204,7 @@ void CAN_Test(void)
 	  ESP_ERROR_CHECK(twai_start());
 	  ESP_LOGI(CAN_TAG, "Can Driver started");
 
-	  can_rx_queue = xQueueCreate(100, sizeof(can_message_t));
+	  can_rx_queue = xQueueCreate(100, sizeof(twai_message_t));
 	  xTaskCreatePinnedToCore(twai_receive_task, "TWAI_rx", 4096, NULL, RX_TASK_PRIO, NULL, tskNO_AFFINITY);
 	  xTaskCreatePinnedToCore(twai_transmit_task, "TWAI_tx", 4096, NULL, TX_TASK_PRIO, NULL, tskNO_AFFINITY);
 }

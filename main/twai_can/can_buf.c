@@ -82,9 +82,10 @@
 #include "freertos/event_groups.h"
 
 #include "esp_log.h"
+#include "driver/twai.h"
 #include "can_buf.h"
 #include "can.h"
-
+#include "time.h"
 
 extern QueueHandle_t can_rx_queue;
 
@@ -93,13 +94,14 @@ enum e_node_status
   node_unknown,
   node_new,
   node_updated,
+  node_refreshed,
   node_reported
 };
 
 
 
 struct node {
-	can_message_t CanMsg;
+	twai_message_t CanMsg;
 	enum e_node_status NodeStatus;
    struct node *next;
 };
@@ -123,7 +125,7 @@ void display(uint8_t detail) {
    printf("\n[head] =>");
    //start from the beginning
    while(ptr != NULL) {
-      printf(" %X  [%d]=>",ptr->CanMsg.identifier, ptr->CanMsg.counter);
+      printf(" 0x%X =>",ptr->CanMsg.identifier);
 
       if (detail == 1)
       {  printf("\n");
@@ -141,7 +143,7 @@ void display(uint8_t detail) {
 //==========================================================================================
 // display  display the list
 //==========================================================================================
-void displayData(can_message_t *data) {
+void displayData(twai_message_t *data) {
    struct node *ptr = head;
 
    printf("CAN ID: 0x%x \r\n",data->identifier);
@@ -177,7 +179,7 @@ void size_of_list() {
 //==========================================================================================
 // insert    insert link at the first location
 //==========================================================================================
-void insert(can_message_t data) {
+void insert(twai_message_t data) {
    //create a link
    struct node *link = (struct node*) malloc(sizeof(struct node));
 
@@ -189,7 +191,7 @@ void insert(can_message_t data) {
    for(int j=0;j< data.data_length_code;j++)
 	   link->CanMsg.data[j] = data.data[j];
    link->NodeStatus = node_new;
-   link->CanMsg.counter = 1;
+
 
 
    //point it to old first node
@@ -239,8 +241,9 @@ int find_data(uint32_t item) {
 //==========================================================================================
 // update_data
 //==========================================================================================
-void update_data(uint32_t CanID, can_message_t new) {
+void update_data(uint32_t CanID, twai_message_t new) {
    int pos = 0;
+
 
    if(head==NULL) {
       printf("Update: Linked List not initialized");
@@ -252,18 +255,27 @@ void update_data(uint32_t CanID, can_message_t new) {
    while(current != NULL) {
       if(current->CanMsg.identifier == CanID) {
 
+    	 current->NodeStatus = node_refreshed;
+
          current->CanMsg.data_length_code = new.data_length_code;
          for(int j=0;j< new.data_length_code;j++)
-        	 current->CanMsg.data[j] = new.data[j];
-         current->CanMsg.counter++;
+         {
+        	 if (current->CanMsg.data[j] != new.data[j])
+        	 {
+        	   current->CanMsg.data[j] = new.data[j];
+        	   current->NodeStatus = node_updated;
+        	 }
+         }
 
          if (current->NodeStatus != node_reported)
         	 printf("\n Update: Over Run Error\n");
 
-         current->NodeStatus = node_updated;
 
+         if (current->NodeStatus == node_refreshed)
+          printf("Refreshed: 0x%X \n", current->CanMsg.identifier);
+         else
+          printf("Updated: 0x%X \n", current->CanMsg.identifier);
 
- //        printf("Update: %X found at position %d, replaced with %X\n", old, pos, new.identifier);
          return;
       }
 
@@ -324,9 +336,9 @@ void remove_data(uint32_t data) {
 //==========================================================================================
 int test_can_linklist() {
 
-	can_message_t test_msg;
+	twai_message_t test_msg;
 
-	test_msg.counter = 0;
+
 	test_msg.data_length_code = 8;
 	test_msg.data[0] = 0xA0;
 	test_msg.data[1] = 0xA1;
@@ -340,29 +352,29 @@ int test_can_linklist() {
 
 	printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
 	test_msg.identifier = 0x1234;
-	test_msg.counter++;
+
     insert(test_msg);
 
 	test_msg.identifier = 0x5678;
-	test_msg.counter++;
+
     insert(test_msg);
 
 	test_msg.identifier = 0xABCD;
-	test_msg.counter++;
+
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
 
 	test_msg.identifier = 0x1234;
-	test_msg.counter++;
+
     insert(test_msg);
 
 	test_msg.identifier = 0x5678;
-	test_msg.counter++;
+
     insert(test_msg);
 
 	test_msg.identifier = 0xABCD;
-	test_msg.counter++;
+
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
@@ -404,13 +416,14 @@ int test_can_linklist() {
 
 static void can_buffer_task(void *arg)
 {
-    can_message_t CanMsg;
+	  twai_message_t CanMsg;
 
     while (1)
      {
 
     	if (can_rx_queue != NULL)
     	 {
+
     		xQueueReceive(can_rx_queue, &CanMsg, portMAX_DELAY);
 
 			if ( find_data(CanMsg.identifier) != -1)
@@ -425,7 +438,7 @@ static void can_buffer_task(void *arg)
 
     	 }
 
-
+    	 vTaskDelay(pdMS_TO_TICKS(1));
      }
 
 }
@@ -435,14 +448,24 @@ static void can_buffer_task(void *arg)
 
 static void periodicr_task(void *arg)
 {
-    can_message_t CanMsg;
+	time_t now;
+	char strftime_buf[64];
+	struct tm timeinfo;
+
+	time(&now);
+	// Set timezone to China Standard Time
+	setenv("TZ", "CST-8", 1);
+	tzset();
+
+
 
     while (1)
      {
+    	localtime_r(&now, &timeinfo);
+    	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    	printf("The current date/time in Shanghai is: %s", strftime_buf);
 
-    	display(1);
-
-    	  vTaskDelay(15000 / portTICK_PERIOD_MS);
+    	 vTaskDelay(pdMS_TO_TICKS(15000));
      }
 
 }
