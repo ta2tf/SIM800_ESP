@@ -258,7 +258,7 @@ void update_data(uint32_t CanID, can_message_t new) {
          current->CanMsg.counter++;
 
          if (current->NodeStatus != node_reported)
-        	 printf("\n Update: LOver Run Error\n");
+        	 printf("\n Update: Over Run Error\n");
 
          current->NodeStatus = node_updated;
 

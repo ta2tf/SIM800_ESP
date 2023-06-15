@@ -459,11 +459,11 @@ void app_main(void)
         char issid[32];
         char ipass[32];
 
-        sprintf(issid,"%s","MERLIN");
-        sprintf(ipass,"%s","narnia1523");
+//        sprintf(issid,"%s","MERLIN");
+//        sprintf(ipass,"%s","narnia1523");
 
-     //   sprintf(issid,"%s","Mertech_2_4");
-     //   sprintf(ipass,"%s","MeR0TecH_2");
+        sprintf(issid,"%s","Mertech_2_4");
+         sprintf(ipass,"%s","MeR0TecH_2");
 
 
         ESP_ERROR_CHECK( nvs_flash_init());
@@ -475,7 +475,7 @@ void app_main(void)
 
         LED_Init();
 
-        example_wifi_connect();
+      //  example_wifi_connect();
 
         CAN_Test();
        // test_can_linklist();
@@ -518,7 +518,7 @@ void app_main(void)
 //	 vTaskDelay(pdMS_TO_TICKS(EXAMPLE_CHASE_SPEED_MS));
 //	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
-    xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
+ //   xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
     can_buffer_run();
 
     while (1)

@@ -51,8 +51,8 @@
 */
 
 //  TARGET ESP32
- #define TX_GPIO_NUM             27
- #define RX_GPIO_NUM             26
+ #define TX_GPIO_NUM             22
+ #define RX_GPIO_NUM             21
 
 ////  TARGET ESP32 S3
 //#define TX_GPIO_NUM             4
@@ -96,25 +96,25 @@ QueueHandle_t can_rx_queue = NULL;
 
 static void twai_transmit_task(void *arg)
 {
-	static const twai_message_t tx_message = {.identifier = 0x18FEEE31, .data_length_code = 0,
-	                                        .data = {0, 0 , 0 , 0 ,0 ,0 ,0 ,0}};
+//	static const twai_message_t tx_message = {.identifier = 0x18FEEE31, .data_length_code = 0,
+//	                                        .data = {0, 0 , 0 , 0 ,0 ,0 ,0 ,0}};
 
 	//Configure message to transmit
 	twai_message_t message;
-	message.identifier = 0xAAAA;
+	message.identifier = 0x18FD0900;
 	message.extd = 1;
-	message.data_length_code = 4;
-	for (int i = 0; i < 4; i++) {
-	    message.data[i] = 0;
+	message.data_length_code = 8;
+	for (int i = 0; i < 8; i++) {
+	    message.data[i] = i;
 	}
 
 
 	while (1) {
 
 
-            twai_transmit(&tx_message, portMAX_DELAY);
+            twai_transmit(&message, portMAX_DELAY);
             ESP_LOGI(CAN_TAG, "Transmitted ping ");
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            vTaskDelay(pdMS_TO_TICKS(5000));
 
         }
 
@@ -166,7 +166,7 @@ static void twai_receive_task(void *arg)
 
 
 
-                        ESP_LOGI(CAN_TAG,"%s", canXML);
+                        ESP_LOGI(CAN_TAG,"%s", canJSON);
 
 
 
@@ -202,7 +202,7 @@ static void twai_receive_task(void *arg)
 
 void CAN_Test(void)
 {
-
+	 ESP_LOGI(CAN_TAG, "Can Driver start");
 	  //Install TWAI driver
 	  ESP_ERROR_CHECK(twai_driver_install(&g_config, &t_config, &f_config));
 	  ESP_LOGI(CAN_TAG, "Can Driver installed");
