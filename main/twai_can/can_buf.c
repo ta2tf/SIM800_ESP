@@ -123,7 +123,7 @@ void display(uint8_t detail) {
    printf("\n[head] =>");
    //start from the beginning
    while(ptr != NULL) {
-      printf(" %X =>",ptr->CanMsg.identifier);
+      printf(" %X  [%d]=>",ptr->CanMsg.identifier, ptr->CanMsg.counter);
 
       if (detail == 1)
       {  printf("\n");
@@ -220,7 +220,7 @@ int find_data(uint32_t item) {
    while(current != NULL) {
 
 	   if(current->CanMsg.identifier == item) {
-         printf("Find Data: %X found at position %d\n", item, pos);
+         printf("Find Data: 0x%X found at position %d\n", item, pos);
          return pos;
       }
 
@@ -422,6 +422,7 @@ static void can_buffer_task(void *arg)
 				insert(CanMsg);
 			}
 
+
     	 }
 
 
@@ -430,9 +431,29 @@ static void can_buffer_task(void *arg)
 }
 
 
+/* --------------------------- Tasks and Functions -------------------------- */
+
+static void periodicr_task(void *arg)
+{
+    can_message_t CanMsg;
+
+    while (1)
+     {
+
+    	display(1);
+
+    	  vTaskDelay(15000 / portTICK_PERIOD_MS);
+     }
+
+}
+
+
+
 void can_buffer_run(void)
 {
 
   xTaskCreatePinnedToCore(&can_buffer_task, "can_buffer_task", 1024*4, NULL, 5, NULL,0);
+  xTaskCreatePinnedToCore(&periodicr_task, "periodicr_task", 1024*4, NULL, 5, NULL,0);
+
 }
 
