@@ -68,7 +68,7 @@ void stntp_set(void)
     setenv("TZ", "GMT-3", 1);
     tzset();
     localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    strftime(strftime_buf, sizeof(strftime_buf), "%x - %I:%M%p" , &timeinfo);
     ESP_LOGI(TAG, "The current date/time in istanbul is: %s", strftime_buf);
 
 

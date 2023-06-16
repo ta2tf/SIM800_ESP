@@ -453,13 +453,11 @@ static void periodik_task(void *arg)
 	char strftime_buf[64];
 	struct tm timeinfo;
 
-
-
     while (1)
      {
     	time(&now);
     	localtime_r(&now, &timeinfo);
-    	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    	strftime(strftime_buf, sizeof(strftime_buf), "%d/%m/%Y - %X", &timeinfo);
     	printf ("The current date/time in istanbul is: %s\n", strftime_buf);
 
     	 vTaskDelay(pdMS_TO_TICKS(5000));
