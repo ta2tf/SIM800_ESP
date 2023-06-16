@@ -20,12 +20,14 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
+#include "freertos/timers.h"
 
 #include "can.h"
 
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/twai.h"
+
 
 
 
@@ -129,6 +131,7 @@ static void twai_transmit_task(void *arg)
 static void twai_receive_task(void *arg)
 {
     twai_message_t rx_message;
+    int64_t time;
 
     ESP_LOGI(CAN_TAG,"%s", "twai_receive_task STARTED");
 
@@ -136,6 +139,9 @@ static void twai_receive_task(void *arg)
         {
             //Receive message and print message data
             ESP_ERROR_CHECK(twai_receive(&rx_message, portMAX_DELAY));
+
+            time = esp_timer_get_time() / (int64_t)1000;
+
 
             xQueueSend(can_rx_queue, &rx_message, portMAX_DELAY);
 
@@ -154,7 +160,22 @@ static void twai_receive_task(void *arg)
 //                    	);
 
 
-						sprintf(canJSON, "{\"MSG\": {\"ID\": \"%08X\",\"D0\": \"%02X\",\"D1\": \"%02X\",\"D2\": \"%02X\",\"D3\": \"%02X\",\"D4\": \"%02X\",\"D5\": \"%02X\",\"D6\": \"%02X\",\"D7\": \"%02X\"}}",
+//						sprintf(canJSON, "{\"MSG\": {\"ID\": \"%08X\",\"D0\": \"%02X\",\"D1\": \"%02X\",\"D2\": \"%02X\",\"D3\": \"%02X\",\"D4\": \"%02X\",\"D5\": \"%02X\",\"D6\": \"%02X\",\"D7\": \"%02X\"}}",
+//                    			rx_message.identifier,
+//                    			rx_message.data[0],
+//								rx_message.data[1],
+//								rx_message.data[2],
+//								rx_message.data[3],
+//								rx_message.data[4],
+//								rx_message.data[5],
+//								rx_message.data[6],
+//								rx_message.data[7]
+//                    	);
+//
+
+
+						sprintf(canJSON, "[%d] 0x%08X %02X %02X %02X %02X %02X %02X %02X %02X",
+								(int) time,
                     			rx_message.identifier,
                     			rx_message.data[0],
 								rx_message.data[1],
@@ -165,6 +186,7 @@ static void twai_receive_task(void *arg)
 								rx_message.data[6],
 								rx_message.data[7]
                     	);
+
 
 
 

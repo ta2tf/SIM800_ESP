@@ -114,6 +114,12 @@ struct node *current = NULL;
 struct node *prev = NULL;
 
 
+
+QueueHandle_t can_update_queue = NULL;
+QueueHandle_t can_refresh_queue = NULL;
+
+
+
 /* ---------------------------- Linked List  Functions -------------------------------- */
 
 //==========================================================================================
@@ -352,29 +358,23 @@ int test_can_linklist() {
 
 	printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
 	test_msg.identifier = 0x1234;
-
     insert(test_msg);
 
 	test_msg.identifier = 0x5678;
-
     insert(test_msg);
 
 	test_msg.identifier = 0xABCD;
-
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
 
 	test_msg.identifier = 0x1234;
-
     insert(test_msg);
 
 	test_msg.identifier = 0x5678;
-
     insert(test_msg);
 
 	test_msg.identifier = 0xABCD;
-
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
@@ -446,26 +446,23 @@ static void can_buffer_task(void *arg)
 
 /* --------------------------- Tasks and Functions -------------------------- */
 
-static void periodicr_task(void *arg)
+static void periodik_task(void *arg)
 {
+
 	time_t now;
 	char strftime_buf[64];
 	struct tm timeinfo;
-
-	time(&now);
-	// Set timezone to China Standard Time
-	setenv("TZ", "CST-8", 1);
-	tzset();
 
 
 
     while (1)
      {
+    	time(&now);
     	localtime_r(&now, &timeinfo);
     	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    	printf("The current date/time in Shanghai is: %s", strftime_buf);
+    	printf ("The current date/time in istanbul is: %s\n", strftime_buf);
 
-    	 vTaskDelay(pdMS_TO_TICKS(15000));
+    	 vTaskDelay(pdMS_TO_TICKS(5000));
      }
 
 }
@@ -476,7 +473,7 @@ void can_buffer_run(void)
 {
 
   xTaskCreatePinnedToCore(&can_buffer_task, "can_buffer_task", 1024*4, NULL, 5, NULL,0);
-  xTaskCreatePinnedToCore(&periodicr_task, "periodicr_task", 1024*4, NULL, 5, NULL,0);
+  xTaskCreatePinnedToCore(&periodik_task, "periodicr_task", 1024*4, NULL, 5, NULL,0);
 
 }
 

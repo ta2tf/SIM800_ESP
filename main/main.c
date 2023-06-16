@@ -76,6 +76,7 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "http_server.h"
 #include "can.h"
 #include "can_buf.h"
+#include "sntp.h"
 
 static const char *TAG = "MAIN";
 
@@ -520,7 +521,7 @@ void app_main(void)
 
  //   xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
     can_buffer_run();
-
+    stntp_set();
     while (1)
      {
 
