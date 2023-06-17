@@ -191,7 +191,7 @@ static void twai_receive_task(void *arg)
 
 						sprintf(canJSON, "[%s-%d] 0x%08X %02X %02X %02X %02X %02X %02X %02X %02X",
 								strftime_buf,
-								(int) time,
+								(int) milisec,
                     			rx_message.identifier,
                     			rx_message.data[0],
 								rx_message.data[1],
