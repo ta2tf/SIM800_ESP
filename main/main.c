@@ -496,14 +496,11 @@ void app_main(void)
   //  whatsapp_main();
 
 
-    // BLE_Init();
+    BLE_Init();
     // GSM_Init();
 
    //  IP5306_test();
    //  bat_Init();
-
-
-
 
 
    //  ota_app();
@@ -524,10 +521,6 @@ void app_main(void)
     stntp_set();
     while (1)
      {
-
-
-
-
 
     	   vTaskDelay(pdMS_TO_TICKS(10));
      }

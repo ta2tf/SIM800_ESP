@@ -71,6 +71,11 @@ void stntp_set(void)
     strftime(strftime_buf, sizeof(strftime_buf), "%x - %I:%M%p" , &timeinfo);
     ESP_LOGI(TAG, "The current date/time in istanbul is: %s", strftime_buf);
 
+	struct timeval tv_now;
+	tv_now.tv_sec = now;
+	settimeofday(&tv_now, NULL);
+
+
 
     if (sntp_get_sync_mode() == SNTP_SYNC_MODE_SMOOTH) {
         struct timeval outdelta;

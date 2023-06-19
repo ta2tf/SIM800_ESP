@@ -27,7 +27,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/twai.h"
-#include "time.h"
+#include "sys/time.h"
 
 
 
@@ -131,16 +131,16 @@ static void twai_transmit_task(void *arg)
 static void twai_receive_task(void *arg)
 {
     twai_message_t rx_message;
-    int64_t milisec;
+
 
 	time_t now;
 	char strftime_buf[64];
 	struct tm timeinfo;
 
 
-
-
-
+	struct timeval tv_now;
+	int     time_ms;
+	int64_t time_ms_full;
 
     ESP_LOGI(CAN_TAG,"%s", "twai_receive_task STARTED");
 
@@ -149,7 +149,21 @@ static void twai_receive_task(void *arg)
             //Receive message and print message data
             ESP_ERROR_CHECK(twai_receive(&rx_message, portMAX_DELAY));
 
-            milisec = esp_timer_get_time() / (int64_t)1000;
+
+
+         	time(&now);
+			localtime_r(&now, &timeinfo);
+			strftime(strftime_buf, sizeof(strftime_buf), "%d/%m/%Y - %X", &timeinfo);
+
+            gettimeofday(&tv_now, NULL);
+
+        	time_ms = tv_now.tv_usec;
+        	time_ms = time_ms / 1000;
+
+        	ESP_LOGI(CAN_TAG,"<<<<< usec time:  %d",   time_ms);
+
+        	time_ms_full = (int64_t )now * (int) 1000 + (int) time_ms;
+            ESP_LOGI(CAN_TAG,"<<<<< usec time:  %x",   time_ms_full);
 
 
             xQueueSend(can_rx_queue, &rx_message, portMAX_DELAY);
@@ -184,14 +198,11 @@ static void twai_receive_task(void *arg)
 
 
 
-                    	time(&now);
-                    	localtime_r(&now, &timeinfo);
-                    	strftime(strftime_buf, sizeof(strftime_buf), "%d/%m/%Y - %X", &timeinfo);
 
-
-						sprintf(canJSON, "[%s-%d] 0x%08X %02X %02X %02X %02X %02X %02X %02X %02X",
+						sprintf(canJSON, "[%d %s-%d] 0x%08X %02X %02X %02X %02X %02X %02X %02X %02X",
+								(int)now,
 								strftime_buf,
-								(int) milisec,
+								(int) time_ms,
                     			rx_message.identifier,
                     			rx_message.data[0],
 								rx_message.data[1],
