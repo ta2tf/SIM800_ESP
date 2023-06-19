@@ -103,6 +103,7 @@ enum e_node_status
 
 
 struct node {
+	Ltime_t        rectime;
 	twai_message_t CanMsg;
 	enum e_node_status NodeStatus;
    struct node *next;
@@ -187,17 +188,29 @@ void size_of_list() {
 //==========================================================================================
 // insert    insert link at the first location
 //==========================================================================================
-void insert(twai_message_t data) {
+void insert(rx_message_t data) {
    //create a link
    struct node *link = (struct node*) malloc(sizeof(struct node));
 
 
 
    //link->key = key;
-   link->CanMsg.identifier = data.identifier;
-   link->CanMsg.data_length_code = data.data_length_code;
-   for(int j=0;j< data.data_length_code;j++)
-	   link->CanMsg.data[j] = data.data[j];
+   link->CanMsg.identifier = data.can.identifier;
+   link->CanMsg.data_length_code = data.can.data_length_code;
+   for(int j=0;j< data.can.data_length_code;j++)
+	   link->CanMsg.data[j] = data.can.data[j];
+
+
+   link->rectime.tm_mday = data.rtm.tm_mday;
+   link->rectime.tm_mon  = data.rtm.tm_mon;
+   link->rectime.tm_year = data.rtm.tm_year;
+
+   link->rectime.tm_hour = data.rtm.tm_hour;
+   link->rectime.tm_min = data.rtm.tm_min;
+   link->rectime.tm_sec = data.rtm.tm_sec;
+   link->rectime.tm_msec = data.rtm.tm_msec;
+
+
    link->NodeStatus = node_new;
 
 
@@ -208,7 +221,7 @@ void insert(twai_message_t data) {
    //point first to new first node
    head = link;
 
-   printf("Insert: %X inserted \n" , data.identifier);
+   printf("Insert: %X inserted \n" , data.can.identifier);
 
 }
 
@@ -249,7 +262,7 @@ int find_data(uint32_t item) {
 //==========================================================================================
 // update_data
 //==========================================================================================
-void update_data(uint32_t CanID, twai_message_t new) {
+void update_data(uint32_t CanID, rx_message_t new) {
    int pos = 0;
 
 
@@ -265,12 +278,23 @@ void update_data(uint32_t CanID, twai_message_t new) {
 
     	 current->NodeStatus = node_refreshed;
 
-         current->CanMsg.data_length_code = new.data_length_code;
-         for(int j=0;j< new.data_length_code;j++)
+
+    	 current->rectime.tm_mday = new.rtm.tm_mday;
+    	 current->rectime.tm_mon  = new.rtm.tm_mon;
+    	 current->rectime.tm_year = new.rtm.tm_year;
+
+    	 current->rectime.tm_hour = new.rtm.tm_hour;
+    	 current->rectime.tm_min = new.rtm.tm_min;
+    	 current->rectime.tm_sec = new.rtm.tm_sec;
+    	 current->rectime.tm_msec = new.rtm.tm_msec;
+
+
+         current->CanMsg.data_length_code = new.can.data_length_code;
+         for(int j=0;j< new.can.data_length_code;j++)
          {
-        	 if (current->CanMsg.data[j] != new.data[j])
+        	 if (current->CanMsg.data[j] != new.can.data[j])
         	 {
-        	   current->CanMsg.data[j] = new.data[j];
+        	   current->CanMsg.data[j] = new.can.data[j];
         	   current->NodeStatus = node_updated;
         	 }
          }
@@ -344,39 +368,39 @@ void remove_data(uint32_t data) {
 //==========================================================================================
 int test_can_linklist() {
 
-	twai_message_t test_msg;
+	rx_message_t test_msg;
 
 
-	test_msg.data_length_code = 8;
-	test_msg.data[0] = 0xA0;
-	test_msg.data[1] = 0xA1;
-	test_msg.data[2] = 0xA2;
-	test_msg.data[3] = 0xA3;
-	test_msg.data[4] = 0xB0;
-	test_msg.data[5] = 0xB1;
-	test_msg.data[6] = 0xB2;
-	test_msg.data[7] = 0xB3;
+	test_msg.can.data_length_code = 8;
+	test_msg.can.data[0] = 0xA0;
+	test_msg.can.data[1] = 0xA1;
+	test_msg.can.data[2] = 0xA2;
+	test_msg.can.data[3] = 0xA3;
+	test_msg.can.data[4] = 0xB0;
+	test_msg.can.data[5] = 0xB1;
+	test_msg.can.data[6] = 0xB2;
+	test_msg.can.data[7] = 0xB3;
 
 
 	printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
-	test_msg.identifier = 0x1234;
+	test_msg.can.identifier = 0x1234;
     insert(test_msg);
 
-	test_msg.identifier = 0x5678;
+	test_msg.can.identifier = 0x5678;
     insert(test_msg);
 
-	test_msg.identifier = 0xABCD;
+	test_msg.can.identifier = 0xABCD;
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
 
-	test_msg.identifier = 0x1234;
+	test_msg.can.identifier = 0x1234;
     insert(test_msg);
 
-	test_msg.identifier = 0x5678;
+	test_msg.can.identifier = 0x5678;
     insert(test_msg);
 
-	test_msg.identifier = 0xABCD;
+	test_msg.can.identifier = 0xABCD;
     insert(test_msg);
 
     printf("[APP] Free Mem: %d \n\n", (int) esp_get_free_heap_size());
@@ -389,7 +413,7 @@ int test_can_linklist() {
    find_data(0x5679);
 
      display(1);
- 	test_msg.data[0] = 0xEF;
+ 	test_msg.can.data[0] = 0xEF;
      update_data(0x5678, test_msg);
      display(1);
 
@@ -418,7 +442,7 @@ int test_can_linklist() {
 
 static void can_buffer_task(void *arg)
 {
-	  twai_message_t CanMsg;
+	rx_message_t RXPackage;
 
     while (1)
      {
@@ -426,15 +450,15 @@ static void can_buffer_task(void *arg)
     	if (can_rx_queue != NULL)
     	 {
 
-    		xQueueReceive(can_rx_queue, &CanMsg, portMAX_DELAY);
+    		xQueueReceive(can_rx_queue, &RXPackage, portMAX_DELAY);
 
-			if ( find_data(CanMsg.identifier) != -1)
+			if ( find_data(RXPackage.can.identifier) != -1)
 			{
-				update_data(CanMsg.identifier, CanMsg);
+				update_data(RXPackage.can.identifier, RXPackage);
 			}
 			else
 			{
-				insert(CanMsg);
+				insert(RXPackage);
 			}
 
 
