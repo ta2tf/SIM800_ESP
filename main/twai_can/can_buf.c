@@ -97,7 +97,6 @@ enum e_node_status
   node_new,
   node_updated,
   node_refreshed,
-  node_reported
 };
 
 
@@ -299,14 +298,18 @@ void update_data(uint32_t CanID, rx_message_t new) {
         	 }
          }
 
-         if (current->NodeStatus != node_reported)
-        	 printf("\n Update: Over Run Error\n");
 
 
          if (current->NodeStatus == node_refreshed)
+         {
           printf("Refreshed: 0x%X \n", current->CanMsg.identifier);
+          // add que refreshed
+         }
          else
+         {
           printf("Updated: 0x%X \n", current->CanMsg.identifier);
+          // add que updated
+         }
 
          return;
       }
