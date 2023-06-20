@@ -98,10 +98,10 @@ static void obtain_time(void)
 {
     ESP_ERROR_CHECK( nvs_flash_init() );
     ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK( esp_event_loop_create_default() );
+   // ESP_ERROR_CHECK( esp_event_loop_create_default() );
 
 
-    ESP_ERROR_CHECK(example_connect());
+   //  ESP_ERROR_CHECK(example_connect());
 
     initialize_sntp();
 
@@ -117,7 +117,7 @@ static void obtain_time(void)
     time(&now);
     localtime_r(&now, &timeinfo);
 
-    ESP_ERROR_CHECK( example_disconnect() );
+   // ESP_ERROR_CHECK( example_disconnect() );
 }
 
 static void initialize_sntp(void)

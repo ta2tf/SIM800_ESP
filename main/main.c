@@ -475,10 +475,10 @@ void app_main(void)
         nvs_close(nvs);
 
         LED_Init();
-    //    stntp_set();
+
 
         example_wifi_connect();
-
+        stntp_set();
 
        // test_can_linklist();
 
