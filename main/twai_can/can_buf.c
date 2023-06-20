@@ -83,11 +83,14 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 
+
+
 #include "esp_log.h"
 #include "driver/twai.h"
 #include "can_buf.h"
 #include "can.h"
 #include "time.h"
+#include "aws.h"
 
 extern QueueHandle_t can_rx_queue;
 
@@ -102,8 +105,9 @@ enum e_node_status
 
 
 struct node {
-	Ltime_t        rectime;
-	twai_message_t CanMsg;
+	Ltime_t        recTime;
+	twai_message_t canMsg;
+	uint32_t       cntMsg;
 	enum e_node_status NodeStatus;
    struct node *next;
 };
@@ -115,10 +119,17 @@ struct node *head = NULL;
 struct node *current = NULL;
 struct node *prev = NULL;
 
-
+uint16_t countList;
 
 QueueHandle_t can_update_queue = NULL;
 QueueHandle_t can_refresh_queue = NULL;
+
+
+extern int32_t MQTT_CONNECTED;
+extern esp_mqtt_client_handle_t client;
+
+// Globals
+static portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
 
 
 
@@ -133,12 +144,12 @@ void display(uint8_t detail) {
    printf("\n[head] =>");
    //start from the beginning
    while(ptr != NULL) {
-      printf(" 0x%X =>",ptr->CanMsg.identifier);
+      printf(" 0x%X =>",ptr->canMsg.identifier);
 
       if (detail == 1)
       {  printf("\n");
-    	   for(int j=0;j< ptr->CanMsg.data_length_code;j++)
-    		   printf("CAN Data[%d]: 0x%x \r\n",j,ptr->CanMsg.data[j]);
+    	   for(int j=0;j< ptr->canMsg.data_length_code;j++)
+    		   printf("CAN Data[%d]: 0x%x \r\n",j,ptr->canMsg.data[j]);
       }
 
       ptr = ptr->next;
@@ -194,25 +205,24 @@ void insert(rx_message_t data) {
 
 
    //link->key = key;
-   link->CanMsg.identifier = data.can.identifier;
-   link->CanMsg.data_length_code = data.can.data_length_code;
+   link->canMsg.identifier = data.can.identifier;
+   link->canMsg.data_length_code = data.can.data_length_code;
    for(int j=0;j< data.can.data_length_code;j++)
-	   link->CanMsg.data[j] = data.can.data[j];
+	   link->canMsg.data[j] = data.can.data[j];
 
 
-   link->rectime.tm_mday = data.rtm.tm_mday;
-   link->rectime.tm_mon  = data.rtm.tm_mon;
-   link->rectime.tm_year = data.rtm.tm_year;
+   link->recTime.tm_mday = data.rtm.tm_mday;
+   link->recTime.tm_mon  = data.rtm.tm_mon;
+   link->recTime.tm_year = data.rtm.tm_year;
 
-   link->rectime.tm_hour = data.rtm.tm_hour;
-   link->rectime.tm_min = data.rtm.tm_min;
-   link->rectime.tm_sec = data.rtm.tm_sec;
-   link->rectime.tm_msec = data.rtm.tm_msec;
-
+   link->recTime.tm_hour = data.rtm.tm_hour;
+   link->recTime.tm_min = data.rtm.tm_min;
+   link->recTime.tm_sec = data.rtm.tm_sec;
+   link->recTime.tm_msec = data.rtm.tm_msec;
+   link->cntMsg = 1;
+   countList++;
 
    link->NodeStatus = node_new;
-
-
 
    //point it to old first node
    link->next = head;
@@ -220,7 +230,7 @@ void insert(rx_message_t data) {
    //point first to new first node
    head = link;
 
-   printf("Insert: %X inserted \n" , data.can.identifier);
+   printf("Insert:%d listed  %X inserted \n" , countList, data.can.identifier);
 
 }
 
@@ -241,7 +251,7 @@ int find_data(uint32_t item) {
 
    while(current != NULL) {
 
-	   if(current->CanMsg.identifier == item) {
+	   if(current->canMsg.identifier == item) {
          printf("Find Data: 0x%X found at position %d\n", item, pos);
          return pos;
       }
@@ -264,6 +274,11 @@ int find_data(uint32_t item) {
 void update_data(uint32_t CanID, rx_message_t new) {
    int pos = 0;
 
+   char topicID[32];
+   char dataCAN[300];
+   char databytes[64];
+   char dbyte[3];
+
 
    if(head==NULL) {
       printf("Update: Linked List not initialized");
@@ -273,27 +288,30 @@ void update_data(uint32_t CanID, rx_message_t new) {
    current = head;
 
    while(current != NULL) {
-      if(current->CanMsg.identifier == CanID) {
+
+
+
+      if(current->canMsg.identifier == CanID) {
 
     	 current->NodeStatus = node_refreshed;
 
 
-    	 current->rectime.tm_mday = new.rtm.tm_mday;
-    	 current->rectime.tm_mon  = new.rtm.tm_mon;
-    	 current->rectime.tm_year = new.rtm.tm_year;
+    	 current->recTime.tm_mday = new.rtm.tm_mday;
+    	 current->recTime.tm_mon  = new.rtm.tm_mon;
+    	 current->recTime.tm_year = new.rtm.tm_year;
 
-    	 current->rectime.tm_hour = new.rtm.tm_hour;
-    	 current->rectime.tm_min = new.rtm.tm_min;
-    	 current->rectime.tm_sec = new.rtm.tm_sec;
-    	 current->rectime.tm_msec = new.rtm.tm_msec;
+    	 current->recTime.tm_hour = new.rtm.tm_hour;
+    	 current->recTime.tm_min  = new.rtm.tm_min;
+    	 current->recTime.tm_sec  = new.rtm.tm_sec;
+    	 current->recTime.tm_msec = new.rtm.tm_msec;
+    	 current->cntMsg++;
 
-
-         current->CanMsg.data_length_code = new.can.data_length_code;
+         current->canMsg.data_length_code = new.can.data_length_code;
          for(int j=0;j< new.can.data_length_code;j++)
          {
-        	 if (current->CanMsg.data[j] != new.can.data[j])
+        	 if (current->canMsg.data[j] != new.can.data[j])
         	 {
-        	   current->CanMsg.data[j] = new.can.data[j];
+        	   current->canMsg.data[j] = new.can.data[j];
         	   current->NodeStatus = node_updated;
         	 }
          }
@@ -302,13 +320,78 @@ void update_data(uint32_t CanID, rx_message_t new) {
 
          if (current->NodeStatus == node_refreshed)
          {
-          printf("Refreshed: 0x%X \n", current->CanMsg.identifier);
-          // add que refreshed
+           printf("Refreshed:%d  0x%X \n", current->cntMsg, current->canMsg.identifier);
+           // add que refreshed
+
+           if(MQTT_CONNECTED)
+           {
+
+        	   memset(topicID,0,sizeof(topicID));
+        	   sprintf(topicID,"/refresh/%08X",current->canMsg.identifier);
+
+        	   // ["Ford", "BMW", "Fiat"]
+        	   memset(databytes,0,sizeof(databytes));
+        	   for (int j=0;j<current->canMsg.data_length_code;j++)
+        	    {
+        		   memset(dbyte,0,sizeof(dbyte));
+        		   if (j== current->canMsg.data_length_code-1)
+        		    sprintf(dbyte,"\"%02X\"",current->canMsg.data[j]);
+        		   else
+        			sprintf(dbyte,"\"%02X\",",current->canMsg.data[j]);
+
+        		   strcat(databytes,dbyte);
+        	    }
+
+        	   memset(dataCAN,0,sizeof(dataCAN));
+        	   sprintf(dataCAN,"{\"Date\": \"%02d/%02d/%04d\", \"Time\": \"%02d:%02d:%02d.%03d\", \"Counter\": \"%d\" , \"Length\": \"%d\", \"Data\": [%s] }",
+        			   current->recTime.tm_mday, current->recTime.tm_mon, current->recTime.tm_year,
+					   current->recTime.tm_hour, current->recTime.tm_min, current->recTime.tm_sec, current->recTime.tm_msec,
+					   current->cntMsg,
+					   current->canMsg.data_length_code,
+					   databytes
+        	   );
+
+               esp_mqtt_client_publish(client, &topicID , &dataCAN, 0, 0, 0);
+           }
+
+
          }
          else
          {
-          printf("Updated: 0x%X \n", current->CanMsg.identifier);
-          // add que updated
+           printf("Updated:%d  0x%X \n", current->cntMsg,  current->canMsg.identifier);
+           // add que updated
+           if(MQTT_CONNECTED)
+           {
+        	   memset(topicID,0,sizeof(topicID));
+        	   sprintf(topicID,"/update/%08X",current->canMsg.identifier);
+
+        	   // ["Ford", "BMW", "Fiat"]
+        	   memset(databytes,0,sizeof(databytes));
+        	   for (int j=0;j<current->canMsg.data_length_code;j++)
+        	    {
+        		   memset(dbyte,0,sizeof(dbyte));
+        		   if (j== current->canMsg.data_length_code-1)
+        		    sprintf(dbyte,"\"%02X\"",current->canMsg.data[j]);
+        		   else
+        			sprintf(dbyte,"\"%02X\",",current->canMsg.data[j]);
+
+        		   strcat(databytes,dbyte);
+        	    }
+
+        	   memset(dataCAN,0,sizeof(dataCAN));
+        	   sprintf(dataCAN,"{\"Date\": \"%02d/%02d/%04d\", \"Time\": \"%02d:%02d:%02d.%03d\", \"Counter\": \"%d\" , \"Length\": \"%d\", \"Data\": [%s] }",
+        			   current->recTime.tm_mday, current->recTime.tm_mon, current->recTime.tm_year,
+					   current->recTime.tm_hour, current->recTime.tm_min, current->recTime.tm_sec, current->recTime.tm_msec,
+					   current->cntMsg,
+					   current->canMsg.data_length_code,
+					   databytes
+        	   );
+
+
+
+               esp_mqtt_client_publish(client, &topicID , &dataCAN, 0, 0, 0);
+           }
+
          }
 
          return;
@@ -316,6 +399,8 @@ void update_data(uint32_t CanID, rx_message_t new) {
 
       current = current->next;
       pos++;
+
+
    }
 
    printf("Update: %X does not exist in the list\n", CanID);
@@ -335,7 +420,7 @@ void remove_data(uint32_t data) {
       return;
    }
 
-   if(head->CanMsg.identifier == data) {
+   if(head->canMsg.identifier == data) {
       if(head->next != NULL) {
          head = head->next;
          return;
@@ -344,7 +429,7 @@ void remove_data(uint32_t data) {
          printf("List is empty now");
          return;
       }
-   } else if(head->CanMsg.identifier != data && head->next == NULL) {
+   } else if(head->canMsg.identifier != data && head->next == NULL) {
       printf("Remove Data:  %X not found in the list\n", data);
       return;
    }
@@ -352,12 +437,12 @@ void remove_data(uint32_t data) {
    //prev = head;
    current = head;
 
-   while(current->next != NULL && current->CanMsg.identifier != data) {
+   while(current->next != NULL && current->canMsg.identifier != data) {
       prev = current;
       current = current->next;
    }
 
-   if(current->CanMsg.identifier == data) {
+   if(current->canMsg.identifier == data) {
       prev->next = prev->next->next;
       free(current);
    } else
@@ -447,6 +532,9 @@ static void can_buffer_task(void *arg)
 {
 	rx_message_t RXPackage;
 
+	countList = 0;
+
+
     while (1)
      {
 
@@ -499,7 +587,7 @@ static void periodik_task(void *arg)
 void can_buffer_run(void)
 {
 
-  xTaskCreatePinnedToCore(&can_buffer_task, "can_buffer_task", 1024*4, NULL, 5, NULL,0);
+  xTaskCreatePinnedToCore(&can_buffer_task, "can_buffer_task", 1024*6, NULL, 8, NULL,0);
   xTaskCreatePinnedToCore(&periodik_task, "periodicr_task", 1024*4, NULL, 5, NULL,0);
 
 }

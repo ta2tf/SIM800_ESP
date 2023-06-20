@@ -475,10 +475,11 @@ void app_main(void)
         nvs_close(nvs);
 
         LED_Init();
+    //    stntp_set();
 
-      //  example_wifi_connect();
+        example_wifi_connect();
 
-        CAN_Test();
+
        // test_can_linklist();
 
 
@@ -496,7 +497,7 @@ void app_main(void)
   //  whatsapp_main();
 
 
-    BLE_Init();
+   // BLE_Init();
     // GSM_Init();
 
    //  IP5306_test();
@@ -505,7 +506,7 @@ void app_main(void)
 
    //  ota_app();
 
-   //  aws_main();
+    aws_main();
 
 //     report_semaphore = xSemaphoreCreateBinary();
 //
@@ -517,8 +518,9 @@ void app_main(void)
 //	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
  //   xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
+    CAN_Test();
     can_buffer_run();
-    stntp_set();
+
     while (1)
      {
 

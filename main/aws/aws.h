@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mqtt_client.h"
 
  void aws_main(void);
 

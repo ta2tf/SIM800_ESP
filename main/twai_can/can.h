@@ -33,7 +33,6 @@ typedef struct rxmessage
 {
 	twai_message_t can;
 	Ltime_t        rtm;
-
 } rx_message_t;
 
 
