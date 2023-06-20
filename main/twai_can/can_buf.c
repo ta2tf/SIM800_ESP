@@ -99,9 +99,20 @@ enum e_node_status
   node_unknown,
   node_new,
   node_updated,
-  node_refreshed,
+  node_refreshed
 };
 
+
+enum e_ID_filter
+{
+  Filter_always,
+  filter_onchange,
+  filter_time,
+  filter_count,
+  filter_mask,
+  filter_block
+
+};
 
 
 struct node {
@@ -201,7 +212,10 @@ void size_of_list() {
 void insert(rx_message_t data) {
    //create a link
    struct node *link = (struct node*) malloc(sizeof(struct node));
-
+   char topicID[32];
+   char dataCAN[300];
+   char databytes[64];
+   char dbyte[3];
 
 
    //link->key = key;
@@ -223,6 +237,40 @@ void insert(rx_message_t data) {
    countList++;
 
    link->NodeStatus = node_new;
+
+
+   if(MQTT_CONNECTED)
+   {
+
+	   memset(topicID,0,sizeof(topicID));
+	   sprintf(topicID,"/insert/%08X",link->canMsg.identifier);
+
+	   // ["Ford", "BMW", "Fiat"]
+	   memset(databytes,0,sizeof(databytes));
+	   for (int j=0;j<link->canMsg.data_length_code;j++)
+	    {
+		   memset(dbyte,0,sizeof(dbyte));
+		   if (j== link->canMsg.data_length_code-1)
+		    sprintf(dbyte,"\"%02X\"",link->canMsg.data[j]);
+		   else
+			sprintf(dbyte,"\"%02X\",",link->canMsg.data[j]);
+
+		   strcat(databytes,dbyte);
+	    }
+
+	   memset(dataCAN,0,sizeof(dataCAN));
+	   sprintf(dataCAN,"{\"Date\": \"%02d/%02d/%04d\", \"Time\": \"%02d:%02d:%02d.%03d\", \"Counter\": \"%d\" , \"Length\": \"%d\", \"Data\": [%s] }",
+			   link->recTime.tm_mday, link->recTime.tm_mon, link->recTime.tm_year,
+			   link->recTime.tm_hour, link->recTime.tm_min, link->recTime.tm_sec, link->recTime.tm_msec,
+			   link->cntMsg,
+			   link->canMsg.data_length_code,
+			   databytes
+	   );
+
+       esp_mqtt_client_publish(client, &topicID , &dataCAN, 0, 0, 0);
+   }
+
+
 
    //point it to old first node
    link->next = head;
