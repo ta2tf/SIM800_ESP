@@ -111,7 +111,6 @@ enum e_ID_filter
   filter_count,
   filter_mask,
   filter_block
-
 };
 
 
@@ -120,7 +119,7 @@ struct node {
 	twai_message_t canMsg;
 	uint32_t       cntMsg;
 	enum e_node_status NodeStatus;
-   struct node *next;
+    struct node *next;
 };
 
 
@@ -291,7 +290,7 @@ int find_data(uint32_t item) {
    int pos = 0;
 
    if(head==NULL) {
-      printf("Find Data: Linked List not initialized");
+    //  printf("Find Data: Linked List not initialized");
       return -1;
    }
 
@@ -300,7 +299,7 @@ int find_data(uint32_t item) {
    while(current != NULL) {
 
 	   if(current->canMsg.identifier == item) {
-         printf("Find Data: 0x%X found at position %d\n", item, pos);
+       //  printf("Find Data: 0x%X found at position %d\n", item, pos);
          return pos;
       }
 
@@ -311,7 +310,7 @@ int find_data(uint32_t item) {
 
 
 
-   printf("Find Data: %X does not exist in the list", item);
+ //  printf("Find Data: %X does not exist in the list", item);
    return -1;
 }
 
@@ -329,7 +328,7 @@ void update_data(uint32_t CanID, rx_message_t new) {
 
 
    if(head==NULL) {
-      printf("Update: Linked List not initialized");
+  //    printf("Update: Linked List not initialized");
       return;
    }
 
