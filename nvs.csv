@@ -3,4 +3,4 @@ certs,namespace,,
 certificate,file,string,../main/aws/awsrootca.crt
 priv_crt,file,string,../main/aws/client.crt
 priv_key,file,string,../main/aws/client.key
-dev_id,data,string,3434
+dev_id,data,string,

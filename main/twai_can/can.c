@@ -102,6 +102,15 @@ static char canDec[256];
 QueueHandle_t can_rx_queue = NULL;
 
 
+enum e_pre_filter
+{
+  Filter_always,
+  filter_mask,
+  filter_whitelist,
+  filter_blacklist
+};
+
+
 
 /* --------------------------- CAN Tasks and Functions -------------------------- */
 

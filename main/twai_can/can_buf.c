@@ -103,14 +103,12 @@ enum e_node_status
 };
 
 
-enum e_ID_filter
+
+enum e_post_filter
 {
-  Filter_always,
   filter_onchange,
-  filter_time,
-  filter_count,
-  filter_mask,
-  filter_block
+  filter_ontime,
+  filter_oncount
 };
 
 

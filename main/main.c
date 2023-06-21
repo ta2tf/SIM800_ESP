@@ -78,6 +78,8 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "can_buf.h"
 #include "sntp.h"
 
+#include "panel.h"
+
 static const char *TAG = "MAIN";
 
 #define CUSTOM_NVS_PART_NAME "storage"
@@ -477,8 +479,8 @@ void app_main(void)
         LED_Init();
 
 
-        example_wifi_connect();
-        stntp_set();
+    //    example_wifi_connect();
+    //    stntp_set();
 
        // test_can_linklist();
 
@@ -506,7 +508,7 @@ void app_main(void)
 
    //  ota_app();
 
-    aws_main();
+  //  aws_main();
 
 //     report_semaphore = xSemaphoreCreateBinary();
 //
@@ -518,9 +520,10 @@ void app_main(void)
 //	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
  //   xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
-    CAN_Test();
-    can_buffer_run();
+  //  CAN_Test();
+   // can_buffer_run();
 
+    Paneltest();
     while (1)
      {
 
