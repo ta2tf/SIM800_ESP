@@ -72,6 +72,7 @@ static const char *TAG = "MAIN";
     gpio_reset_pin(PIN_C);
     gpio_set_direction(PIN_C, GPIO_MODE_OUTPUT);
 
+
     gpio_reset_pin(PIN_S);
     gpio_set_direction(PIN_S, GPIO_MODE_OUTPUT);
 
@@ -97,14 +98,12 @@ static const char *TAG = "MAIN";
   //==========================================================================================================
   void Pinclock(void)
   {
-      gpio_set_level(PIN_S, 0);
-      vTaskDelay(1 / portTICK_PERIOD_MS);
 
       gpio_set_level(PIN_S, 1);
-      vTaskDelay(1 / portTICK_PERIOD_MS);
+      vTaskDelay(3 / portTICK_PERIOD_MS);
 
       gpio_set_level(PIN_S, 0);
-      vTaskDelay(1 / portTICK_PERIOD_MS);
+      vTaskDelay(2 / portTICK_PERIOD_MS);
 
   }
 
@@ -179,45 +178,41 @@ void Paneltest(void)
 while(1)
  {
 
-	PinSet(PIN_A);
-	PinSet(PIN_B);
-	PinReset(PIN_C);
- 	Pinclock();
 	PinReset(PIN_L);
- 	Pinclock();
- 	PinSet(PIN_OE);
- 	Pinclock();
+	PinSet(PIN_OE);
+
+
+	PinSet(PIN_A);
+	PinReset(PIN_B);
+	PinReset(PIN_C);
 
 
 
-
-	for(int j=0;j<128;j++)
+	for(int j=0;j<32;j++)
 	 {
 
 		if((j%5)==0)
 		PinSet(PIN_R1);
 		else
 			PinReset(PIN_R1);
-
-
 		Pinclock();
-
 	 }
 
 
+
 	PinSet(PIN_L);
-	Pinclock();
+	vTaskDelay(5 / portTICK_PERIOD_MS);
 	PinReset(PIN_L);
-	Pinclock();
+
 
 	vTaskDelay(5 / portTICK_PERIOD_MS);
 
 	PinReset(PIN_OE);
-	Pinclock();
+
 
 	ESP_LOGI(TAG, "Panel");
 
-	  vTaskDelay(5000 / portTICK_PERIOD_MS);
+   vTaskDelay(5 / portTICK_PERIOD_MS);
 
  }
 }
