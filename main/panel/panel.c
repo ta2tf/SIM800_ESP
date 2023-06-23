@@ -127,38 +127,38 @@ static const char *TAG = "MAIN";
  			PinReset(PIN_A);
  			PinReset(PIN_B);
  			PinReset(PIN_C);
- 		}
+ 		}else
  		if(line==1)
  		{
  			PinSet(PIN_A);
  			PinReset(PIN_B);
  			PinReset(PIN_C);
- 		}
+ 		}else
  		if(line==2){
  			PinReset(PIN_A);
  			PinSet(PIN_B);
  			PinReset(PIN_C);
- 		}
+ 		}else
  		if(line==3){
  			PinSet(PIN_A);
  			PinSet(PIN_B);
  			PinReset(PIN_C);
- 		}
+ 		}else
  		if(line==4){
  			PinReset(PIN_A);
  			PinReset(PIN_B);
  			PinSet(PIN_C);
- 		}
+ 		}else
  		if(line==5){
  			PinSet(PIN_A);
  			PinReset(PIN_B);
  			PinSet(PIN_C);
- 		}
+ 		}else
  		if(line==6){
  			PinReset(PIN_A);
  			PinSet(PIN_B);
  			PinSet(PIN_C);
- 		}
+ 		}else
  		if(line==7){
  			PinSet(PIN_A);
  			PinSet(PIN_B);
@@ -170,6 +170,7 @@ static const char *TAG = "MAIN";
 
  }
 
+uint32_t pixel = 0;
 
 void Paneltest(void)
 {
@@ -178,20 +179,33 @@ void Paneltest(void)
 while(1)
  {
 
-	PinReset(PIN_L);
-	PinSet(PIN_OE);
+    pixel++;
+    if (pixel>2048)
+    {
+    	pixel = 0;
+
+    	ESP_LOGI(TAG, "Panel");
+
+       vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
 
 
-	PinSet(PIN_A);
-	PinReset(PIN_B);
-	PinReset(PIN_C);
+//	PinReset(PIN_L);
+//	PinSet(PIN_OE);
+//
+//
+//	PinSet(PIN_A);
+//	PinReset(PIN_B);
+//	PinReset(PIN_C);
 
 
 
-	for(int j=0;j<32;j++)
+	for(int j=0;j<64;j++)
 	 {
 
-		if((j%5)==0)
+		latch(pixel%2);
+
+		if((j%2)==0)
 		PinSet(PIN_R1);
 		else
 			PinReset(PIN_R1);
@@ -200,19 +214,17 @@ while(1)
 
 
 
-	PinSet(PIN_L);
-	vTaskDelay(5 / portTICK_PERIOD_MS);
-	PinReset(PIN_L);
+//	PinSet(PIN_L);
+//	vTaskDelay(5 / portTICK_PERIOD_MS);
+//	PinReset(PIN_L);
+//
+//
+//	vTaskDelay(5 / portTICK_PERIOD_MS);
+//
+//	PinReset(PIN_OE);
 
 
-	vTaskDelay(5 / portTICK_PERIOD_MS);
 
-	PinReset(PIN_OE);
-
-
-	ESP_LOGI(TAG, "Panel");
-
-   vTaskDelay(5 / portTICK_PERIOD_MS);
 
  }
 }

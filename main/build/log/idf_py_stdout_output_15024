@@ -1,0 +1,9 @@
+-- The C compiler identification is Clang 14.0.0
+-- The CXX compiler identification is unknown
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - failed
+-- Check for working C compiler: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin/clang.exe
+-- Check for working C compiler: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin/clang.exe - broken
+-- Configuring incomplete, errors occurred!
+See also "C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeOutput.log".
+See also "C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeError.log".

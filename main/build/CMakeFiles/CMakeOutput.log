@@ -1,0 +1,14 @@
+The system is: Windows - 10.0.19045 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin/clang.exe 
+Build flags: 
+Id flags: -c 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.o"
+
+The C compiler identification is Clang, found in "C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/3.24.0/CompilerIdC/CMakeCCompilerId.o"
+

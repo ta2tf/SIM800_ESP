@@ -1,0 +1,165 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin/clang.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+clang: error: unable to execute command: program not executable
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags:  
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: -c 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --c++ 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --ec++ 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: -c;-I__does_not_exist__ 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags:  
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: -c 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --c++ 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --ec++ 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: --target=arm-arm-none-eabi;-mcpu=cortex-m3 
+
+The output was:
+The system cannot find the file specified
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: CMAKE_CXX_COMPILER-NOTFOUND 
+Build flags: 
+Id flags: -c;-I__does_not_exist__ 
+
+The output was:
+The system cannot find the file specified
+
+
+Detecting C compiler ABI info failed to compile with the following output:
+Change Dir: C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/MyEspressif/tools/ninja/1.10.2/ninja.exe cmTC_62498 && [1/2] Building C object CMakeFiles/cmTC_62498.dir/CMakeCCompilerABI.c.obj
+clang version 14.0.0 (https://github.com/espressif/llvm-project.git 38679f0333ca1fd10fb78a3e8a2e90b2b64f9097)
+Target: x86_64-w64-windows-gnu
+Thread model: posix
+InstalledDir: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin
+ (in-process)
+ "C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin/clang.exe" -cc1 -triple x86_64-w64-windows-gnu -emit-obj -mrelax-all --mrelax-relocations -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=none -fmath-errno -ffp-contract=on -fno-rounding-math -mconstructor-aliases -mms-bitfields -funwind-tables=2 -target-cpu x86-64 -tune-cpu generic -mllvm -treat-scalable-fixed-error-as-warning -debugger-tuning=gdb -v -fcoverage-compilation-dir=C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeTmp -resource-dir C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/lib/clang/14.0.0 -dependency-file "CMakeFiles\\cmTC_62498.dir\\CMakeCCompilerABI.c.obj.d" -MT CMakeFiles/cmTC_62498.dir/CMakeCCompilerABI.c.obj -sys-header-deps -internal-isystem C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/lib/clang/14.0.0/include -internal-isystem C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/sys-root/mingw/include -internal-isystem C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/include -internal-isystem C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/include -fdebug-compilation-dir=C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeTmp -ferror-limit 19 -fno-use-cxa-atexit -fgnuc-version=4.2.1 -exception-model=seh -faddrsig -o CMakeFiles/cmTC_62498.dir/CMakeCCompilerABI.c.obj -x c C:/MyEspressif/tools/cmake/3.24.0/share/cmake-3.24/Modules/CMakeCCompilerABI.c
+clang -cc1 version 14.0.0 based upon LLVM 14.0.0 default target x86_64-w64-mingw32
+ignoring nonexistent directory "C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/sys-root/mingw/include"
+ignoring nonexistent directory "C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/lib/clang/14.0.0/include
+ C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/include
+End of search list.
+[2/2] Linking C executable cmTC_62498.exe
+FAILED: cmTC_62498.exe 
+cmd.exe /C "cd . && C:\MyEspressif\tools\xtensa-clang\14.0.0-38679f0333\xtensa-esp32-elf-clang\bin\clang.exe  -v CMakeFiles/cmTC_62498.dir/CMakeCCompilerABI.c.obj -o cmTC_62498.exe -Wl,--out-implib,libcmTC_62498.dll.a -Wl,--major-image-version,0,--minor-image-version,0   && cd ."
+clang version 14.0.0 (https://github.com/espressif/llvm-project.git 38679f0333ca1fd10fb78a3e8a2e90b2b64f9097)
+Target: x86_64-w64-windows-gnu
+Thread model: posix
+InstalledDir: C:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/bin
+ "ld" -m i386pep -Bdynamic -o cmTC_62498.exe crt2.o crtbegin.o -LC:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/lib -LC:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/lib -LC:/MyEspressif/tools/xtensa-clang/14.0.0-38679f0333/xtensa-esp32-elf-clang/x86_64-w64-mingw32/sys-root/mingw/lib CMakeFiles/cmTC_62498.dir/CMakeCCompilerABI.c.obj --out-implib libcmTC_62498.dll.a --major-image-version 0 --minor-image-version 0 -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt -lkernel32 crtend.o
+clang: error: unable to execute command: program not executable
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ninja: build stopped: subcommand failed.
+
+
+
+
+Determining if the C compiler works failed with the following output:
+Change Dir: C:/Espressif/frameworks/esp-idf-v5.0.1/workspace2/SIM800_ESP/main/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/MyEspressif/tools/ninja/1.10.2/ninja.exe cmTC_318e4 && [1/2] Building C object CMakeFiles/cmTC_318e4.dir/testCCompiler.c.obj
+[2/2] Linking C executable cmTC_318e4.exe
+FAILED: cmTC_318e4.exe 
+cmd.exe /C "cd . && C:\MyEspressif\tools\xtensa-clang\14.0.0-38679f0333\xtensa-esp32-elf-clang\bin\clang.exe   CMakeFiles/cmTC_318e4.dir/testCCompiler.c.obj -o cmTC_318e4.exe -Wl,--out-implib,libcmTC_318e4.dll.a -Wl,--major-image-version,0,--minor-image-version,0  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 && cd ."
+clang: error: unable to execute command: program not executable
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ninja: build stopped: subcommand failed.
+
+
+
