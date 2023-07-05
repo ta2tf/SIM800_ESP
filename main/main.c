@@ -44,7 +44,7 @@ ota_1,app,ota_1,0xc00000,4M,
 #include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"cd
+#include "freertos/event_groups.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "esp_system.h"
@@ -79,6 +79,7 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "sntp.h"
 
 #include "panel.h"
+
 
 static const char *TAG = "MAIN";
 
@@ -479,6 +480,8 @@ void app_main(void)
         LED_Init();
 
 
+
+
     //    example_wifi_connect();
     //    stntp_set();
 
@@ -523,7 +526,7 @@ void app_main(void)
   //  CAN_Test();
    // can_buffer_run();
 
-    Paneltest();
+  Paneltest();
     while (1)
      {
 
