@@ -477,7 +477,7 @@ void app_main(void)
         ESP_ERROR_CHECK( nvs_set_str(nvs, "pass", ipass));
         nvs_close(nvs);
 
-        LED_Init();
+       // LED_Init();
 
 
 
