@@ -104,21 +104,23 @@ enum e_node_status
 
 
 
-enum e_post_filter
+enum post_filter_e
 {
-  filter_onchange,
-  filter_ontime,
-  filter_oncount
+  post_filter_onchange,
+  post_filter_ontime,
+  post_filter_oncount
 };
 
 
-struct node {
+
+
+typedef struct node {
 	Ltime_t        recTime;
 	twai_message_t canMsg;
 	uint32_t       cntMsg;
 	enum e_node_status NodeStatus;
     struct node *next;
-};
+}node_t;
 
 
 
@@ -633,7 +635,7 @@ void can_buffer_run(void)
 {
 
   xTaskCreatePinnedToCore(&can_buffer_task, "can_buffer_task", 1024*6, NULL, 8, NULL,0);
-  xTaskCreatePinnedToCore(&periodik_task, "periodicr_task", 1024*4, NULL, 5, NULL,0);
+  xTaskCreatePinnedToCore(&periodik_task,   "periodicr_task",  1024*4, NULL, 5, NULL,0);
 
 }
 

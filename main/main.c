@@ -76,6 +76,8 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "http_server.h"
 #include "can.h"
 #include "can_buf.h"
+#include "prefilter.h"
+
 #include "sntp.h"
 
 #include "panel.h"
@@ -477,9 +479,9 @@ void app_main(void)
         ESP_ERROR_CHECK( nvs_set_str(nvs, "pass", ipass));
         nvs_close(nvs);
 
-       // LED_Init();
+        LED_Init();
 
-
+        test_can_prefilter();
 
 
     //    example_wifi_connect();
@@ -526,7 +528,7 @@ void app_main(void)
   //  CAN_Test();
    // can_buffer_run();
 
-  Paneltest();
+ // Paneltest();
     while (1)
      {
 

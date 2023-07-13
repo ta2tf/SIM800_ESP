@@ -14,6 +14,7 @@ set(COMPONENT_SRCS "main.c"
 				   "http_server/http_server.c"
 				   "twai_can/can.c"
 				   "twai_can/can_buf.c" 
+				   "twai_can/prefilter.c" 
 				   "panel/panel.c"			   
 				   )
 				   
