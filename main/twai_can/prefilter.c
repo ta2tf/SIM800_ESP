@@ -327,7 +327,6 @@ int DoPreFilter(uint32_t ID)
 		   }
 
 		}
-
 		    current =  current->next;
 	   }
 

@@ -10,6 +10,6 @@
 
 
 int test_can_prefilter(void);
-
+int DoPreFilter(uint32_t ID);
 
 #endif /* MAIN_TWAI_CAN_PREFILTER_H_ */

@@ -88,6 +88,8 @@
 #include "esp_log.h"
 #include "driver/twai.h"
 #include "can_buf.h"
+#include "prefilter.h"
+
 #include "can.h"
 #include "time.h"
 #include "aws.h"
@@ -590,15 +592,17 @@ static void can_buffer_task(void *arg)
 
     		xQueueReceive(can_rx_queue, &RXPackage, portMAX_DELAY);
 
-			if ( find_data(RXPackage.can.identifier) != -1)
-			{
-				update_data(RXPackage.can.identifier, RXPackage);
-			}
-			else
-			{
-				insert(RXPackage);
-			}
-
+    		if (DoPreFilter(RXPackage.can.identifier))
+    		{
+				if ( find_data(RXPackage.can.identifier) != -1)
+				{
+					update_data(RXPackage.can.identifier, RXPackage);
+				}
+				else
+				{
+					insert(RXPackage);
+				}
+    		}
 
     	 }
 
