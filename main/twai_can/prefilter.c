@@ -292,10 +292,13 @@ int DoPreFilter(uint32_t ID)
 		   //black Mask
 		   if (current->filter.pre_filter_type == pre_filter_id_blackmask)
 		   {
-			 if (current->filter.pre_filter_parm & ID)
+			   tmp_parm = current->filter.pre_filter_parm & current->filter.pre_filter_mask;
+			     tmp_id = ID & current->filter.pre_filter_mask;
+
+			 if (  tmp_parm == tmp_id)
 			  {
 				current->filter.num_of_filtered_msg++;
-				 printf("return Black Mask [%d]\r\n",  current->filter.pre_filter_id);
+				 printf("return White Mask [%d]\r\n",  current->filter.pre_filter_id);
 				return 0;
 			  }
 		   } else
@@ -312,13 +315,8 @@ int DoPreFilter(uint32_t ID)
 		   //white Mask
 		   if (current->filter.pre_filter_type == pre_filter_id_whitemask)
 		   {
-
 			   tmp_parm = current->filter.pre_filter_parm & current->filter.pre_filter_mask;
 			     tmp_id = ID & current->filter.pre_filter_mask;
-
-			   printf("[%x] %x\r\n",  tmp_parm, tmp_id);
-
-			   printf("[%x] %x\r\n",  current->filter.pre_filter_parm, current->filter.pre_filter_mask);
 
 			 if (  tmp_parm == tmp_id)
 			  {
@@ -330,9 +328,7 @@ int DoPreFilter(uint32_t ID)
 
 		}
 
-
 		    current =  current->next;
-
 	   }
 
 	   printf("End Do Filter without filtered: \r\n");
@@ -380,10 +376,14 @@ int test_can_prefilter(void)
 
 
 
+
    size_of_list();
    ListFilters();
    DoPreFilter(0x18FFFFAA);
    DoPreFilter(0x18FFFFAC);
+   DoPreFilter(0x18FF11AC);
+   DoPreFilter(0x18FF10AC);
+
 
    ListFilters();
 
