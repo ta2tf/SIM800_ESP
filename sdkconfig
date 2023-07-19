@@ -1793,6 +1793,13 @@ CONFIG_WPA_MBEDTLS_TLS_CLIENT=y
 # CONFIG_WPA_11R_SUPPORT is not set
 # CONFIG_WPA_WPS_SOFTAP_REGISTRAR is not set
 # end of Supplicant
+
+#
+# esp-modem
+#
+CONFIG_ESP_MODEM_CMUX_DEFRAGMENT_PAYLOAD=y
+CONFIG_ESP_MODEM_CMUX_DELAY_AFTER_DLCI_SETUP=0
+# end of esp-modem
 # end of Component config
 
 # Deprecated options for backward compatibility

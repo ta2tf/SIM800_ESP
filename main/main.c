@@ -81,6 +81,8 @@ ota_1,app,ota_1,0xc00000,4M,
 #include "sntp.h"
 
 #include "panel.h"
+#include "libGSM.h"
+
 
 
 static const char *TAG = "MAIN";
@@ -481,8 +483,9 @@ void app_main(void)
 
         LED_Init();
 
-        test_can_prefilter();
+      //  test_can_prefilter();
 
+         app_main_GSM_test();
 
     //    example_wifi_connect();
     //    stntp_set();

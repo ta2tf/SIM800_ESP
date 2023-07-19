@@ -1,5 +1,6 @@
 set(COMPONENT_SRCS "main.c" 
                    "gsm/gsm.c" 
+                   "gsm/libGSM.c" 
 				   "ble/ble.c" 
 				   "board/led.c" 
 				   "board/IP5306.c" 
