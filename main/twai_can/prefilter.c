@@ -10,8 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-
 #include "esp_log.h"
+
+#include "prefilter.h"
+
+
 
 enum filter_sta_e
 { status_not_active,
@@ -36,6 +39,7 @@ typedef struct filter {
 	uint32_t           pre_filter_parm;
 	uint32_t           pre_filter_mask;
 	uint32_t           num_of_filtered_msg;
+	uint8_t            data_mask;
 }filter_t;
 
 
@@ -127,6 +131,8 @@ void insert_filter(filter_t data) {
    prefilter->filter.pre_filter_parm = data.pre_filter_parm;
    prefilter->filter.pre_filter_mask = data.pre_filter_mask;
    prefilter->filter.pre_filter_type = data.pre_filter_type;
+   prefilter->filter.data_mask = data.data_mask;
+
    prefilter->filter.num_of_filtered_msg = 0;
 
 
@@ -171,6 +177,37 @@ int find_filter(uint8_t item) {
    printf("Find Data: %X does not exist in the list", item);
    return -1;
 }
+
+
+//==========================================================================================
+// find_data
+//==========================================================================================
+uint8_t get_filter_datamask(uint8_t item) {
+
+
+   if(pre_head == NULL) {
+    //  printf("Find Data: Linked List not initialized");
+      return 0;
+   }
+
+   pre_current = pre_head;
+
+   while(pre_current != NULL) {
+
+	   if(pre_current->filter.pre_filter_id == item) {
+         printf("Find Data Mask: %d \n", item);
+         return pre_current->filter.data_mask;
+      }
+
+      pre_current = pre_current->next;
+
+   }
+
+
+   printf("Find Data: %X does not exist in the list", item);
+   return 0;
+}
+
 
 
 //==========================================================================================
@@ -262,12 +299,14 @@ void remove_filter(uint8_t FilterID) {
 //==========================================================================================
 // do pre filter
 //==========================================================================================
-int DoPreFilter(uint32_t ID)
+int DoPreFilter(rx_message_t *msg)
 {
 	   uint32_t tmp_parm;
 	   uint32_t tmp_id;
+	   uint32_t ID = msg->can.identifier;
 
-//	 printf("Start Filter: \r\n");
+
+ 	 printf("Start Filter: 0x%08X \r\n",ID);
 
 	   if( pre_head == NULL) {
 	      return 0;
@@ -284,6 +323,7 @@ int DoPreFilter(uint32_t ID)
 		   {
 		     if (pre_current->filter.pre_filter_parm == ID)
 		      {
+		    	msg->filter_id = pre_current->filter.pre_filter_id;
 			    pre_current->filter.num_of_filtered_msg++;
 			     printf("Black List [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 			    return 0;
@@ -297,6 +337,7 @@ int DoPreFilter(uint32_t ID)
 
 			 if (  tmp_parm == tmp_id)
 			  {
+				msg->filter_id = pre_current->filter.pre_filter_id;
 				pre_current->filter.num_of_filtered_msg++;
 				 printf("White Mask [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 0;
@@ -309,6 +350,7 @@ int DoPreFilter(uint32_t ID)
 
 			 if (pre_current->filter.pre_filter_parm == ID)
 			  {
+				msg->filter_id = pre_current->filter.pre_filter_id;
 				pre_current->filter.num_of_filtered_msg++;
 				 printf("White List:     0x%08X [%d,%d]\r\n",ID,  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 1;
@@ -322,6 +364,7 @@ int DoPreFilter(uint32_t ID)
 
 			 if (  tmp_parm == tmp_id)
 			  {
+				msg->filter_id = pre_current->filter.pre_filter_id;
 				pre_current->filter.num_of_filtered_msg++;
 				 printf("White Mask [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 1;
@@ -352,13 +395,24 @@ int test_can_prefilter(void)
 
     test_filter.pre_filter_status = status_active;
     test_filter.pre_filter_parm   = 0x18FFFFAA;
+    test_filter.data_mask   = 0xFF;
+
     test_filter.pre_filter_type   = pre_filter_id_whitelist;
 
     insert_filter(test_filter);
-    test_filter.pre_filter_mask   = 0x000000FF;
-	test_filter.pre_filter_status = status_active;
-	test_filter.pre_filter_parm   = 0x0CF0E431;
 
+    test_filter.pre_filter_status = status_active;
+    test_filter.pre_filter_parm   = 0x0CF00431;
+    test_filter.data_mask   = 0xAB;
+    test_filter.pre_filter_type   = pre_filter_id_whitelist;
+
+    insert_filter(test_filter);
+
+
+    test_filter.pre_filter_mask   = 0xFF000000;
+	test_filter.pre_filter_status = status_active;
+	test_filter.pre_filter_parm   = 0x18000000;
+	test_filter.data_mask   = 0xEF;
 	test_filter.pre_filter_type   = pre_filter_id_whitemask;
 
     insert_filter(test_filter);

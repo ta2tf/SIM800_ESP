@@ -327,6 +327,7 @@ void update_data(uint32_t CanID, rx_message_t new) {
    char dataCAN[300];
    char databytes[64];
    char dbyte[3];
+   uint8_t filterdatamask;
 
 
    if(head==NULL) {
@@ -343,6 +344,12 @@ void update_data(uint32_t CanID, rx_message_t new) {
       if(current->canMsg.identifier == CanID) {
 
     	 current->NodeStatus = node_refreshed;
+
+
+
+
+    	 filterdatamask = get_filter_datamask(new.filter_id);
+    	 printf("Filter ID:  [%d] datamask: 0x%02X\n",new.filter_id, filterdatamask);
 
 
     	 current->recTime.tm_mday = new.rtm.tm_mday;
@@ -592,7 +599,7 @@ static void can_buffer_task(void *arg)
 
     		xQueueReceive(can_rx_queue, &RXPackage, portMAX_DELAY);
 
-    		if (DoPreFilter(RXPackage.can.identifier))
+    		if (DoPreFilter( &RXPackage ))
     		{
 				if ( find_data(RXPackage.can.identifier) != -1)
 				{
