@@ -369,7 +369,7 @@ void update_data(uint32_t CanID, rx_message_t new) {
 
          if (current->NodeStatus == node_refreshed)
          {
-           printf("Refreshed:%d  0x%X \n", current->cntMsg, current->canMsg.identifier);
+           printf("Refreshed:    0x%08X  [%d]\n",current->canMsg.identifier, current->cntMsg);
            // add que refreshed
 
            if(MQTT_CONNECTED)
@@ -606,7 +606,8 @@ static void can_buffer_task(void *arg)
 
     	 }
 
-    	 vTaskDelay(pdMS_TO_TICKS(1));
+    	//vTaskMissedYield();
+    	 vTaskDelay(pdMS_TO_TICKS(10));
      }
 
 }

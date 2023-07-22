@@ -470,7 +470,7 @@ void app_main(void)
 //        sprintf(issid,"%s","MERLIN");
 //        sprintf(ipass,"%s","narnia1523");
 
-        sprintf(issid,"%s","Mertech_2_4");
+         sprintf(issid,"%s","Mertech_2_4");
          sprintf(ipass,"%s","MeR0TecH_2");
 
 
@@ -485,10 +485,10 @@ void app_main(void)
 
       //  test_can_prefilter();
 
-         app_main_GSM_test();
+     //    app_main_GSM_test();
 
-    //    example_wifi_connect();
-    //    stntp_set();
+   example_wifi_connect();
+    stntp_set();
 
        // test_can_linklist();
 
@@ -516,7 +516,7 @@ void app_main(void)
 
    //  ota_app();
 
-  //  aws_main();
+// aws_main();
 
 //     report_semaphore = xSemaphoreCreateBinary();
 //
@@ -528,8 +528,10 @@ void app_main(void)
 //	 xTaskNotify(ledtaskHandler, (3), eSetBits);
 
  //   xTaskCreatePinnedToCore(&http_server_task, "http_server", 1024*4, NULL, 5, NULL,0);
-  //  CAN_Test();
-   // can_buffer_run();
+
+  test_can_prefilter();
+  CAN_Test();
+  can_buffer_run();
 
  // Paneltest();
     while (1)

@@ -80,7 +80,7 @@
 
 #define CAN_TAG             "CAN:"
 
-static const twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+static const twai_timing_config_t t_config = TWAI_TIMING_CONFIG_250KBITS();
 static const twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
 //Filter all other IDs except MSG_ID
@@ -250,7 +250,7 @@ static void twai_receive_task(void *arg)
 
 
 
-                        ESP_LOGI(CAN_TAG,"%s", canDec);
+                    //    ESP_LOGI(CAN_TAG,"%s", canDec);
 
 
 

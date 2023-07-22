@@ -50,9 +50,9 @@ typedef struct pre_filter_item {
 
 
 /* --------------------- Linked List  Definitions and  variables ------------------ */
-struct pre_filter_item * head = NULL;
-struct pre_filter_item * current = NULL;
-struct pre_filter_item * prev = NULL;
+struct pre_filter_item * pre_head = NULL;
+struct pre_filter_item * pre_current = NULL;
+struct pre_filter_item * pre_prev = NULL;
 
 
 
@@ -62,7 +62,7 @@ struct pre_filter_item * prev = NULL;
 // display  display the list
 //==========================================================================================
 void ListFilters(void) {
-   struct pre_filter_item *ptr = head;
+   struct pre_filter_item *ptr = pre_head;
 
    printf("\nList Filters \n");
    //start from the beginning
@@ -87,18 +87,18 @@ void ListFilters(void) {
 //==========================================================================================
 // size_of_list
 //==========================================================================================
-void size_of_list() {
+void size_of_preFilter() {
    int size = 0;
 
-   if( head == NULL) {
+   if( pre_head == NULL) {
       printf("List size : %d \r\n", size);
       return;
    }
 
-   current = head;
+   pre_current = pre_head;
    size = 1;
-   while( current->next != NULL) {
-	    current =  current->next;
+   while( pre_current->next != NULL) {
+	    pre_current =  pre_current->next;
       size++;
    }
    printf("List size : %d \r\n", size);
@@ -114,13 +114,13 @@ void insert_filter(filter_t data) {
 
 
    //link->key = key;
-   if (head == NULL)
+   if (pre_head == NULL)
    {
      prefilter->filter.pre_filter_id = 1;
    }
    else
    {
-	   prefilter->filter.pre_filter_id = head->filter.pre_filter_id+1;
+	   prefilter->filter.pre_filter_id = pre_head->filter.pre_filter_id+1;
    }
 
    prefilter->filter.pre_filter_status = status_active;
@@ -132,10 +132,10 @@ void insert_filter(filter_t data) {
 
 
    //point it to old first node
-   prefilter->next =  head;
+   prefilter->next =  pre_head;
 
    //point first to new first node
-   head = prefilter;
+   pre_head = prefilter;
 
    printf("Insert:%d  inserted \n" , prefilter->filter.pre_filter_id);
 
@@ -149,21 +149,21 @@ void insert_filter(filter_t data) {
 int find_filter(uint8_t item) {
    int pos = 0;
 
-   if(head == NULL) {
+   if(pre_head == NULL) {
     //  printf("Find Data: Linked List not initialized");
       return -1;
    }
 
-   current = head;
+   pre_current = pre_head;
 
-   while(current != NULL) {
+   while(pre_current != NULL) {
 
-	   if(current->filter.pre_filter_id == item) {
+	   if(pre_current->filter.pre_filter_id == item) {
          printf("Find Data: 0x%X found at position %d\n", item, pos);
          return pos;
       }
 
-      current = current->next;
+      pre_current = pre_current->next;
       pos++;
    }
 
@@ -185,27 +185,27 @@ void update_filter(uint8_t filterID, filter_t new) {
    char dbyte[3];
 
 
-   if(head == NULL) {
+   if(pre_head == NULL) {
   //    printf("Update: Linked List not initialized");
       return;
    }
 
-   current = head;
+   pre_current = pre_head;
 
-   while(current != NULL) {
+   while(pre_current != NULL) {
 
 
 
-      if(current->filter.pre_filter_id == filterID) {
+      if(pre_current->filter.pre_filter_id == filterID) {
 
-    	 current->filter.pre_filter_status = new.pre_filter_status;
-    	 current->filter.pre_filter_parm = new.pre_filter_parm;
-    	 current->filter.pre_filter_type = new.pre_filter_type;
-    	 current->filter.num_of_filtered_msg = 0;
+    	 pre_current->filter.pre_filter_status = new.pre_filter_status;
+    	 pre_current->filter.pre_filter_parm = new.pre_filter_parm;
+    	 pre_current->filter.pre_filter_type = new.pre_filter_type;
+    	 pre_current->filter.num_of_filtered_msg = 0;
 
       }
 
-      current = current->next;
+      pre_current = pre_current->next;
       pos++;
 
    }
@@ -218,41 +218,41 @@ void update_filter(uint8_t filterID, filter_t new) {
 //==========================================================================================
 // remove_data
 //==========================================================================================
-void remove_data(uint8_t FilterID) {
+void remove_filter(uint8_t FilterID) {
    int pos = 0;
 
 
 
-   if(head == NULL) {
+   if(pre_head == NULL) {
       printf("Remove Data: Linked List not initialized\n");
       return;
    }
 
-   if(head->filter.pre_filter_id == FilterID) {
-      if(head->next != NULL) {
-         head = head->next;
+   if(pre_head->filter.pre_filter_id == FilterID) {
+      if(pre_head->next != NULL) {
+         pre_head = pre_head->next;
          return;
       } else {
-         head = NULL;
+         pre_head = NULL;
          printf("List is empty now");
          return;
       }
-   } else if( (head->filter.pre_filter_id != FilterID) && (head->next == NULL) ) {
+   } else if( (pre_head->filter.pre_filter_id != FilterID) && (pre_head->next == NULL) ) {
       printf("Remove Data:  %X not found in the list\n", FilterID);
       return;
    }
 
-   //prev = head;
-   current = head;
+   //pre_prev = pre_head;
+   pre_current = pre_head;
 
-   while(current->next != NULL && current->filter.pre_filter_id != FilterID) {
-      prev = current;
-      current = current->next;
+   while(pre_current->next != NULL && pre_current->filter.pre_filter_id != FilterID) {
+      pre_prev = pre_current;
+      pre_current = pre_current->next;
    }
 
-   if(current->filter.pre_filter_id == FilterID) {
-      prev->next = prev->next->next;
-      free(current);
+   if(pre_current->filter.pre_filter_id == FilterID) {
+      pre_prev->next = pre_prev->next->next;
+      free(pre_current);
    } else
       printf("Remove Data: %X not found in the list.\n", FilterID);
 
@@ -267,71 +267,73 @@ int DoPreFilter(uint32_t ID)
 	   uint32_t tmp_parm;
 	   uint32_t tmp_id;
 
-	 printf("Start Filter: \r\n");
+//	 printf("Start Filter: \r\n");
 
-	   if( head == NULL) {
+	   if( pre_head == NULL) {
 	      return 0;
 	   }
 
-	   current = head;
+	   pre_current = pre_head;
 
-	   while( current->next != NULL) {
+	   while( pre_current->next != NULL) {
 
-		if (current->filter.pre_filter_status == status_active)
+		if (pre_current->filter.pre_filter_status == status_active)
 		{
 		   // Black List
-		   if (current->filter.pre_filter_type == pre_filter_id_blacklist)
+		   if (pre_current->filter.pre_filter_type == pre_filter_id_blacklist)
 		   {
-		     if (current->filter.pre_filter_parm == ID)
+		     if (pre_current->filter.pre_filter_parm == ID)
 		      {
-			    current->filter.num_of_filtered_msg++;
-			     printf("return Black List [%d]\r\n",  current->filter.pre_filter_id);
+			    pre_current->filter.num_of_filtered_msg++;
+			     printf("Black List [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 			    return 0;
 		      }
 		   } else
 		   //black Mask
-		   if (current->filter.pre_filter_type == pre_filter_id_blackmask)
+		   if (pre_current->filter.pre_filter_type == pre_filter_id_blackmask)
 		   {
-			   tmp_parm = current->filter.pre_filter_parm & current->filter.pre_filter_mask;
-			     tmp_id = ID & current->filter.pre_filter_mask;
+			   tmp_parm = pre_current->filter.pre_filter_parm & pre_current->filter.pre_filter_mask;
+			     tmp_id = ID & pre_current->filter.pre_filter_mask;
 
 			 if (  tmp_parm == tmp_id)
 			  {
-				current->filter.num_of_filtered_msg++;
-				 printf("return White Mask [%d]\r\n",  current->filter.pre_filter_id);
+				pre_current->filter.num_of_filtered_msg++;
+				 printf("White Mask [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 0;
 			  }
 		   } else
 		   //white List
-		   if (current->filter.pre_filter_type == pre_filter_id_whitelist)
+		   if (pre_current->filter.pre_filter_type == pre_filter_id_whitelist)
 		   {
-			 if (current->filter.pre_filter_parm == ID)
+
+
+			 if (pre_current->filter.pre_filter_parm == ID)
 			  {
-				current->filter.num_of_filtered_msg++;
-				 printf("return White List [%d]\r\n",  current->filter.pre_filter_id);
+				pre_current->filter.num_of_filtered_msg++;
+				 printf("White List:     0x%08X [%d,%d]\r\n",ID,  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 1;
 			  }
 		   } else
 		   //white Mask
-		   if (current->filter.pre_filter_type == pre_filter_id_whitemask)
+		   if (pre_current->filter.pre_filter_type == pre_filter_id_whitemask)
 		   {
-			   tmp_parm = current->filter.pre_filter_parm & current->filter.pre_filter_mask;
-			     tmp_id = ID & current->filter.pre_filter_mask;
+			   tmp_parm = pre_current->filter.pre_filter_parm & pre_current->filter.pre_filter_mask;
+			     tmp_id = ID & pre_current->filter.pre_filter_mask;
 
 			 if (  tmp_parm == tmp_id)
 			  {
-				current->filter.num_of_filtered_msg++;
-				 printf("return White Mask [%d]\r\n",  current->filter.pre_filter_id);
+				pre_current->filter.num_of_filtered_msg++;
+				 printf("White Mask [%d,%d]\r\n",  pre_current->filter.pre_filter_id,pre_current->filter.num_of_filtered_msg );
 				return 1;
 			  }
 		   }
 
 		}
-		    current =  current->next;
+		    pre_current =  pre_current->next;
 	   }
 
-	   printf("End Do Filter without filtered: \r\n");
-	   return 1;
+	   printf("NOT Filtered: 0x%X \r\n",ID);
+	   return 0;
 
 }
 
@@ -345,11 +347,7 @@ int test_can_prefilter(void)
 
 	printf("Start pre filter test\n");
 
-	test_filter.pre_filter_status = status_active;
-	test_filter.pre_filter_parm   = 0x18FFFF00;
-	test_filter.pre_filter_type   = pre_filter_id_whitelist;
 
-    insert_filter(test_filter);
 
 
     test_filter.pre_filter_status = status_active;
@@ -357,31 +355,43 @@ int test_can_prefilter(void)
     test_filter.pre_filter_type   = pre_filter_id_whitelist;
 
     insert_filter(test_filter);
-
+    test_filter.pre_filter_mask   = 0x000000FF;
 	test_filter.pre_filter_status = status_active;
-	test_filter.pre_filter_mask   = 0x000000FF;
-	test_filter.pre_filter_parm   = 0x000000AC;
+	test_filter.pre_filter_parm   = 0x0CF0E431;
+
 	test_filter.pre_filter_type   = pre_filter_id_whitemask;
 
     insert_filter(test_filter);
 
 
-    test_filter.pre_filter_status = status_active;
-    test_filter.pre_filter_parm   = 0x18FFFFBB;
-    test_filter.pre_filter_type   = pre_filter_id_whitelist;
-
-    insert_filter(test_filter);
 
 
 
+//
+//	test_filter.pre_filter_status = status_active;
+//	test_filter.pre_filter_mask   = 0x000000FF;
+//	test_filter.pre_filter_parm   = 0x000000AC;
+//	test_filter.pre_filter_type   = pre_filter_id_whitemask;
+//
+//    insert_filter(test_filter);
+//
+//
+//    test_filter.pre_filter_status = status_active;
+//    test_filter.pre_filter_parm   = 0x18FFFFBB;
+//    test_filter.pre_filter_type   = pre_filter_id_whitelist;
+//
+//    insert_filter(test_filter);
 
 
-   size_of_list();
+
+
+
+   size_of_preFilter();
    ListFilters();
-   DoPreFilter(0x18FFFFAA);
-   DoPreFilter(0x18FFFFAC);
-   DoPreFilter(0x18FF11AC);
-   DoPreFilter(0x18FF10AC);
+//    DoPreFilter(0x0CF00431);
+//   DoPreFilter(0x18FFFFAC);
+//   DoPreFilter(0x18FF11AC);
+//   DoPreFilter(0x18FF10AC);
 
 
    ListFilters();
