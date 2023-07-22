@@ -306,7 +306,7 @@ int DoPreFilter(rx_message_t *msg)
 	   uint32_t ID = msg->can.identifier;
 
 
- 	 printf("Start Filter: 0x%08X \r\n",ID);
+ 	// printf("Start Filter: 0x%08X \r\n",ID);
 
 	   if( pre_head == NULL) {
 	      return 0;
@@ -375,7 +375,7 @@ int DoPreFilter(rx_message_t *msg)
 		    pre_current =  pre_current->next;
 	   }
 
-	   printf("NOT Filtered: 0x%X \r\n",ID);
+	 //  printf("NOT Filtered: 0x%X \r\n",ID);
 	   return 0;
 
 }
@@ -402,14 +402,14 @@ int test_can_prefilter(void)
     insert_filter(test_filter);
 
     test_filter.pre_filter_status = status_active;
-    test_filter.pre_filter_parm   = 0x0CF00431;
+    test_filter.pre_filter_parm   = 0x18FEF731;
     test_filter.data_mask   = 0xAB;
     test_filter.pre_filter_type   = pre_filter_id_whitelist;
 
     insert_filter(test_filter);
 
 
-    test_filter.pre_filter_mask   = 0xFF000000;
+    test_filter.pre_filter_mask   = 0x00000000;
 	test_filter.pre_filter_status = status_active;
 	test_filter.pre_filter_parm   = 0x18000000;
 	test_filter.data_mask   = 0xEF;

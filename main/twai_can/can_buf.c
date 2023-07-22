@@ -365,6 +365,7 @@ void update_data(uint32_t CanID, rx_message_t new) {
          current->canMsg.data_length_code = new.can.data_length_code;
          for(int j=0;j< new.can.data_length_code;j++)
          {
+        	 if ( filterdatamask & (0x01<<j) )
         	 if (current->canMsg.data[j] != new.can.data[j])
         	 {
         	   current->canMsg.data[j] = new.can.data[j];
