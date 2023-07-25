@@ -34,6 +34,7 @@ typedef struct rxmessage
 	twai_message_t can;
 	Ltime_t        rtm;
 	uint8_t        filter_id;
+
 } rx_message_t;
 
 

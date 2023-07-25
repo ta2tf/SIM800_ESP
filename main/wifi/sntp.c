@@ -40,6 +40,8 @@ static void initialize_sntp(void);
 
 
 
+
+
 void time_sync_notification_cb(struct timeval *tv)
 {
     ESP_LOGI(TAG, "Notification of a time synchronization event");
@@ -52,6 +54,7 @@ void stntp_set(void)
 
     time_t now;
     struct tm timeinfo;
+
     time(&now);
     localtime_r(&now, &timeinfo);
     // Is time set? If not, tm_year will be (1970 - 1900).

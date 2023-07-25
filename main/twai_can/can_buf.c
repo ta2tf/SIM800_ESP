@@ -118,6 +118,7 @@ enum post_filter_e
 
 typedef struct node {
 	Ltime_t        recTime;
+
 	twai_message_t canMsg;
 	uint32_t       cntMsg;
 	enum e_node_status NodeStatus;
@@ -234,6 +235,7 @@ void insert(rx_message_t data) {
    link->recTime.tm_min = data.rtm.tm_min;
    link->recTime.tm_sec = data.rtm.tm_sec;
    link->recTime.tm_msec = data.rtm.tm_msec;
+
    link->cntMsg = 1;
    countList++;
 
@@ -360,6 +362,8 @@ void update_data(uint32_t CanID, rx_message_t new) {
     	 current->recTime.tm_min  = new.rtm.tm_min;
     	 current->recTime.tm_sec  = new.rtm.tm_sec;
     	 current->recTime.tm_msec = new.rtm.tm_msec;
+
+
     	 current->cntMsg++;
 
          current->canMsg.data_length_code = new.can.data_length_code;
@@ -377,7 +381,7 @@ void update_data(uint32_t CanID, rx_message_t new) {
 
          if (current->NodeStatus == node_refreshed)
          {
-           printf("Refreshed:    0x%08X  [%d]\n",current->canMsg.identifier, current->cntMsg);
+           printf("Refreshed:    0x%08X  [%d] \n",current->canMsg.identifier, current->cntMsg);
            // add que refreshed
 
            if(MQTT_CONNECTED)

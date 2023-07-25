@@ -28,6 +28,7 @@
 #include "driver/gpio.h"
 #include "driver/twai.h"
 #include "sys/time.h"
+#include "sntp.h"
 
 //
 //struct tm {
@@ -102,13 +103,16 @@ static char canDec[256];
 QueueHandle_t can_rx_queue = NULL;
 
 
-enum e_pre_filter
-{
-  Filter_always,
-  filter_mask,
-  filter_whitelist,
-  filter_blacklist
-};
+
+
+time_t now;
+char strftime_buf[64];
+struct tm timeinfo;
+
+
+struct timeval tv_now;
+int     time_ms;
+int     time_us;
 
 
 
@@ -143,6 +147,7 @@ static void twai_transmit_task(void *arg)
     vTaskDelete(NULL);
 }
 
+
 //==========================================================================================
 //==========================================================================================
 // twai_receive_task
@@ -153,14 +158,7 @@ static void twai_receive_task(void *arg)
 	rx_message_t rx_message;
 
 
-	time_t now;
-	char strftime_buf[64];
-	struct tm timeinfo;
 
-
-	struct timeval tv_now;
-	int     time_ms;
-	int64_t time_ms_full;
 
     ESP_LOGI(CAN_TAG,"%s", "twai_receive_task STARTED");
 
@@ -178,8 +176,8 @@ static void twai_receive_task(void *arg)
 
             gettimeofday(&tv_now, NULL);
 
-        	time_ms = tv_now.tv_usec;
-        	time_ms = time_ms / 1000;
+            time_us = tv_now.tv_usec;
+        	time_ms = time_us / 1000;
 
         	rx_message.rtm.tm_hour = timeinfo.tm_hour;
         	rx_message.rtm.tm_min  = timeinfo.tm_min;
