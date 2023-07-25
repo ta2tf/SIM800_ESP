@@ -314,7 +314,7 @@ int DoPreFilter(rx_message_t *msg)
 
 	   pre_current = pre_head;
 
-	   while( pre_current->next != NULL) {
+	   while( pre_current != NULL) {
 
 		if (pre_current->filter.pre_filter_status == status_active)
 		{
@@ -409,9 +409,9 @@ int test_can_prefilter(void)
     insert_filter(test_filter);
 
 
-    test_filter.pre_filter_mask   = 0x00000000;
+    test_filter.pre_filter_mask   = 0x000000FF;
 	test_filter.pre_filter_status = status_active;
-	test_filter.pre_filter_parm   = 0x18000000;
+	test_filter.pre_filter_parm   = 0x18000033;
 	test_filter.data_mask   = 0xEF;
 	test_filter.pre_filter_type   = pre_filter_id_whitemask;
 
